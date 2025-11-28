@@ -306,7 +306,7 @@ export default function MainPage() {
     const BottomNavBar = () => (
         <View style={styles.bottomNavContainer}>
             <TouchableOpacity style={styles.navItem}>
-                <Ionicons name="search-outline" size={24} color="#1A1A1A" />
+                <Ionicons name="cart-outline" size={24} color="#1A1A1A" />
             </TouchableOpacity>
             <TouchableOpacity style={styles.navItem}>
                 <Ionicons name="person-outline" size={24} color="#1A1A1A" />
