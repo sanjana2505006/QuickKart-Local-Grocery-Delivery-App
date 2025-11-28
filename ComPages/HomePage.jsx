@@ -7,7 +7,7 @@ export default function HomePage({ onGetStarted }) {
   const photos = [
     "https://cdn.pixabay.com/photo/2020/05/22/03/10/vegetables-5203555_1280.jpg",
     "https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Zm9vZHxlbnwwfHwwfHx8MA%3D%3D",
-    "https://cdn.pixabay.com/photo/2017/08/06/20/49/people-2596199_1280.jpg"
+    "https://images.unsplash.com/photo-1649871371385-8190d1b9b370?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTE5fHxncm9jZXJ5fGVufDB8fDB8fHww"
   ];
 
   return (
@@ -56,7 +56,7 @@ export default function HomePage({ onGetStarted }) {
           textShadowOffset: { width: -1, height: 1 },
           textShadowRadius: 10
         }}>
-          Fast delivery{"\n"}of delicious food
+        Fresh groceries{"\n"}delivered fast
         </Text>
 
         <Text style={{
@@ -69,7 +69,7 @@ export default function HomePage({ onGetStarted }) {
           textShadowOffset: { width: -1, height: 1 },
           textShadowRadius: 10
         }}>
-          Order food within 3 days and get bonuses.
+          Get your essentials delivered in minutes with special rewards
         </Text>
 
         <TouchableOpacity

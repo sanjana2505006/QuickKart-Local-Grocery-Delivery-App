@@ -306,7 +306,7 @@ export default function MainPage() {
     const BottomNavBar = () => (
         <View style={styles.bottomNavContainer}>
             <TouchableOpacity style={styles.navItem}>
-                <Ionicons name="search-outline" size={24} color="#1A1A1A" />
+                <Ionicons name="cart-outline" size={24} color="#1A1A1A" />
             </TouchableOpacity>
             <TouchableOpacity style={styles.navItem}>
                 <Ionicons name="person-outline" size={24} color="#1A1A1A" />
@@ -372,17 +372,73 @@ export default function MainPage() {
                 />
             </View>
 
-            {/* Content with Grid */}
+            {/* Content */}
             <ScrollView contentContainerStyle={styles.listContent} showsVerticalScrollIndicator={false}>
-                <ListHeader />
-                {filteredData.map((section) => (
-                    <View key={section.title} style={styles.sectionContainer}>
-                        <Text style={styles.sectionTitle}>{section.title}</Text>
-                        <View style={styles.gridContainer}>
-                            {section.data.map((item) => renderItem(item))}
+                {selectedCategory === "All" ? (
+                    <>
+                        {/* Banner */}
+                        <View style={styles.bannerContainer}>
+                            <Image
+                                source={{ uri: "https://img.freepik.com/free-photo/shopping-basket-with-grocery-products_23-2148102377.jpg" }}
+                                style={styles.bannerImage}
+                            />
+                            <View style={styles.bannerOverlay}>
+                                <Text style={styles.bannerText}>Fresh Groceries</Text>
+                                <Text style={styles.bannerSubtext}>Delivered in 10 mins</Text>
+                            </View>
                         </View>
-                    </View>
-                ))}
+
+                        <View style={styles.sectionContainer}>
+                            <Text style={styles.sectionTitle}>Grocery & Kitchen</Text>
+                            <View style={styles.categoryGrid}>
+                                {CATEGORIES.filter(c => c.name !== "All").map((cat, index) => (
+                                    <TouchableOpacity
+                                        key={index}
+                                        style={styles.gridCategoryCard}
+                                        onPress={() => setSelectedCategory(cat.name)}
+                                    >
+                                        <View style={[styles.gridIconContainer, { backgroundColor: cat.color }]}>
+                                            <Image source={{ uri: cat.image }} style={styles.gridIcon} />
+                                        </View>
+                                        <Text style={styles.gridCategoryName}>{cat.name}</Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+                        </View>
+
+                        {/* Show Popular items or other sections for "All" view if desired, 
+                            or just the categories as the main entry point. 
+                            Let's show "Popular" below the categories for quick access. */}
+                        {GROCERY_DATA.filter(s => s.title === "Popular").map((section) => (
+                            <View key={section.title} style={styles.sectionContainer}>
+                                <Text style={styles.sectionTitle}>{section.title}</Text>
+                                <View style={styles.gridContainer}>
+                                    {section.data.map((item) => renderItem(item))}
+                                </View>
+                            </View>
+                        ))}
+                    </>
+                ) : (
+                    <>
+                        <ListHeader />
+                        {filteredData.map((section) => (
+                            <View key={section.title} style={styles.sectionContainer}>
+                                <Text style={styles.sectionTitle}>{section.title}</Text>
+                                <View style={styles.gridContainer}>
+                                    {section.data.map((item) => renderItem(item))}
+                                </View>
+                            </View>
+                        ))}
+                        {filteredData.length === 0 && (
+                            <View style={styles.emptyState}>
+                                <Text style={styles.emptyStateText}>No items found in {selectedCategory}</Text>
+                                <TouchableOpacity onPress={() => setSelectedCategory("All")} style={styles.backButton}>
+                                    <Text style={styles.backButtonText}>Browse all categories</Text>
+                                </TouchableOpacity>
+                            </View>
+                        )}
+                    </>
+                )}
             </ScrollView>
 
             {/* Bottom Navigation */}
@@ -570,6 +626,87 @@ const styles = StyleSheet.create({
     navItem: {
         alignItems: "center",
         justifyContent: "center",
+    },
+    categoryGrid: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        justifyContent: "space-between",
+    },
+    gridCategoryCard: {
+        width: "23%", // 4 items per row approx
+        alignItems: "center",
+        marginBottom: 20,
+    },
+    gridIconContainer: {
+        width: 70,
+        height: 70,
+        borderRadius: 20,
+        justifyContent: "center",
+        alignItems: "center",
+        marginBottom: 8,
+    },
+    gridIcon: {
+        width: 40,
+        height: 40,
+        resizeMode: "contain",
+    },
+    gridCategoryName: {
+        fontSize: 12,
+        fontWeight: "600",
+        color: "#333",
+        textAlign: "center",
+        lineHeight: 16,
+    },
+    emptyState: {
+        alignItems: "center",
+        marginTop: 50,
+    },
+    emptyStateText: {
+        fontSize: 16,
+        color: "#666",
+        marginBottom: 20,
+    },
+    backButton: {
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        backgroundColor: "#4CAF50",
+        borderRadius: 20,
+    },
+    backButtonText: {
+        color: "#fff",
+        fontWeight: "600",
+    },
+    bannerContainer: {
+        marginVertical: 20,
+        borderRadius: 20,
+        overflow: 'hidden',
+        height: 180,
+        backgroundColor: '#FFF0F0',
+        position: 'relative',
+    },
+    bannerImage: {
+        width: '100%',
+        height: '100%',
+        resizeMode: 'cover',
+    },
+    bannerOverlay: {
+        position: 'absolute',
+        bottom: 20,
+        left: 20,
+        backgroundColor: 'rgba(255,255,255,0.9)',
+        paddingHorizontal: 15,
+        paddingVertical: 10,
+        borderRadius: 12,
+    },
+    bannerText: {
+        fontSize: 18,
+        fontWeight: '800',
+        color: '#1A1A1A',
+    },
+    bannerSubtext: {
+        fontSize: 12,
+        color: '#4CAF50',
+        fontWeight: '600',
     },
 });
 
