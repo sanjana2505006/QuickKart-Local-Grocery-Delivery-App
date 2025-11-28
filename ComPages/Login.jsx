@@ -1,5 +1,7 @@
-import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal, ActivityIndicator } from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons } from "@expo/vector-icons";
 
 export default function Login({ onCreateAccount }) {
     const [name, setName] = useState("");
@@ -7,7 +9,36 @@ export default function Login({ onCreateAccount }) {
     const [phone, setPhone] = useState("");
     const [alertVisible, setAlertVisible] = useState(false);
     const [alertMessage, setAlertMessage] = useState("");
-    const [alertType, setAlertType] = useState(""); // "error" or "success"
+    const [alertType, setAlertType] = useState(""); 
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        loadUserData();
+    }, []);
+
+    const loadUserData = async () => {
+        try {
+            const savedName = await AsyncStorage.getItem('userName');
+            const savedEmail = await AsyncStorage.getItem('userEmail');
+            const savedPhone = await AsyncStorage.getItem('userPhone');
+
+            if (savedName) setName(savedName);
+            if (savedEmail) setEmail(savedEmail);
+            if (savedPhone) setPhone(savedPhone);
+        } catch (error) {
+            console.log('Error loading user data:', error);
+        }
+    };
+
+    const saveUserData = async () => {
+        try {
+            await AsyncStorage.setItem('userName', name);
+            await AsyncStorage.setItem('userEmail', email);
+            await AsyncStorage.setItem('userPhone', phone);
+        } catch (error) {
+            console.log('Error saving user data:', error);
+        }
+    };
 
     const validateEmail = (email) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -25,7 +56,7 @@ export default function Login({ onCreateAccount }) {
         setAlertVisible(true);
     };
 
-    const handleLogin = () => {
+    const handleLogin = async () => {
         // Email validation
         if (!validateEmail(email)) {
             showAlert("Please enter a valid email address", "error");
@@ -44,51 +75,90 @@ export default function Login({ onCreateAccount }) {
             return;
         }
 
+        setLoading(true);
+
+        // Save user data to AsyncStorage
+        await saveUserData();
+
+        setLoading(false);
+
         console.log('Login successful with:', { name, email, phone });
+        showAlert("Account created successfully!", "success");
+
         // Navigate to MainPage after successful account creation
-        if (onCreateAccount) {
-            onCreateAccount();
-        }
+        setTimeout(() => {
+            setAlertVisible(false);
+            if (onCreateAccount) {
+                onCreateAccount();
+            }
+        }, 1500);
     };
 
     return (
         <View style={styles.container}>
+            {/* Decorative Background Elements */}
+            <View style={styles.backgroundCircle1} />
+            <View style={styles.backgroundCircle2} />
+
             {/* Header */}
             <View style={styles.header}>
+                <View style={styles.iconContainer}>
+                    <Ionicons name="cart" size={50} color="#4CAF50" />
+                </View>
                 <Text style={styles.title}>Create Account</Text>
                 <Text style={styles.subtitle}>Join us and get your groceries delivered fast</Text>
             </View>
 
             {/* Input Fields */}
             <View style={styles.formContainer}>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Enter your name"
-                    value={name}
-                    onChangeText={setName}
-                />
+                <View style={styles.inputWrapper}>
+                    <Ionicons name="person-outline" size={20} color="#4CAF50" style={styles.inputIcon} />
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Enter your name"
+                        placeholderTextColor="#999"
+                        value={name}
+                        onChangeText={setName}
+                    />
+                </View>
 
-                <TextInput
-                    style={styles.input}
-                    placeholder="Enter your email"
-                    value={email}
-                    onChangeText={setEmail}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                />
+                <View style={styles.inputWrapper}>
+                    <Ionicons name="mail-outline" size={20} color="#4CAF50" style={styles.inputIcon} />
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Enter your email"
+                        placeholderTextColor="#999"
+                        value={email}
+                        onChangeText={setEmail}
+                        keyboardType="email-address"
+                        autoCapitalize="none"
+                    />
+                </View>
 
-                <TextInput
-                    style={styles.input}
-                    placeholder="Enter your phone (10 digits)"
-                    value={phone}
-                    onChangeText={setPhone}
-                    keyboardType="phone-pad"
-                    maxLength={10}
-                />
+                <View style={styles.inputWrapper}>
+                    <Ionicons name="call-outline" size={20} color="#4CAF50" style={styles.inputIcon} />
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Enter your phone (10 digits)"
+                        placeholderTextColor="#999"
+                        value={phone}
+                        onChangeText={setPhone}
+                        keyboardType="phone-pad"
+                        maxLength={10}
+                    />
+                </View>
             </View>
 
-            <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-                <Text style={styles.loginButtonText}>Create Account</Text>
+            <TouchableOpacity
+                style={[styles.loginButton, loading && styles.loginButtonDisabled]}
+                onPress={handleLogin}
+                disabled={loading}
+            >
+                {loading ? (
+                    <ActivityIndicator color="#fff" />
+                ) : (
+                    <Text style={styles.loginButtonText}>Create Account</Text>
+                )}
             </TouchableOpacity>
 
             <View style={styles.footer}>
@@ -111,8 +181,18 @@ export default function Login({ onCreateAccount }) {
                         styles.alertBox,
                         alertType === "error" ? styles.errorAlert : styles.successAlert
                     ]}>
+                        <View style={[
+                            styles.alertIconContainer,
+                            alertType === "error" ? styles.errorIconBg : styles.successIconBg
+                        ]}>
+                            <Ionicons
+                                name={alertType === "error" ? "close-circle" : "checkmark-circle"}
+                                size={50}
+                                color="#fff"
+                            />
+                        </View>
                         <Text style={styles.alertTitle}>
-                            {alertType === "error" ? "Error" : "Success"}
+                            {alertType === "error" ? "Oops!" : "Success!"}
                         </Text>
                         <Text style={styles.alertMessage}>{alertMessage}</Text>
                         <TouchableOpacity
@@ -136,11 +216,46 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 20,
         justifyContent: "center",
-        backgroundColor: "#fff",
+        backgroundColor: "#f8f9fa",
+    },
+    backgroundCircle1: {
+        position: 'absolute',
+        width: 300,
+        height: 300,
+        borderRadius: 150,
+        backgroundColor: 'rgba(76, 175, 80, 0.1)',
+        top: -100,
+        right: -100,
+    },
+    backgroundCircle2: {
+        position: 'absolute',
+        width: 200,
+        height: 200,
+        borderRadius: 100,
+        backgroundColor: 'rgba(76, 175, 80, 0.08)',
+        bottom: -50,
+        left: -50,
     },
     header: {
         marginBottom: 40,
         alignItems: "center",
+    },
+    iconContainer: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        backgroundColor: '#fff',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 20,
+        shadowColor: "#4CAF50",
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 8,
     },
     title: {
         fontSize: 32,
@@ -158,32 +273,60 @@ const styles = StyleSheet.create({
     formContainer: {
         marginBottom: 30,
     },
+    inputWrapper: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+        borderRadius: 12,
+        marginBottom: 16,
+        paddingHorizontal: 15,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    inputIcon: {
+        marginRight: 10,
+    },
     input: {
-        borderWidth: 1,
-        borderColor: "#ccc",
-        borderRadius: 8,
+        flex: 1,
         padding: 15,
-        marginBottom: 15,
         fontSize: 16,
-        backgroundColor: "#f9f9f9",
+        color: '#1a1a1a',
     },
     loginButton: {
         backgroundColor: "#4CAF50",
-        padding: 16,
-        borderRadius: 8,
+        padding: 18,
+        borderRadius: 12,
         alignItems: "center",
         marginBottom: 20,
+        shadowColor: "#4CAF50",
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 5,
+    },
+    loginButtonDisabled: {
+        opacity: 0.7,
     },
     loginButtonText: {
         color: "white",
         fontSize: 18,
-        fontWeight: "600",
+        fontWeight: "700",
     },
     footer: {
         alignItems: "center",
+        paddingHorizontal: 20,
     },
     footerText: {
-        fontSize: 14,
+        fontSize: 13,
         color: "#666",
         textAlign: "center",
         lineHeight: 20,
@@ -202,43 +345,59 @@ const styles = StyleSheet.create({
     },
     alertBox: {
         backgroundColor: 'white',
-        borderRadius: 12,
-        padding: 20,
-        width: '80%',
+        borderRadius: 20,
+        padding: 30,
+        width: '85%',
         alignItems: 'center',
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
-            height: 2,
+            height: 4,
         },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 8,
     },
     errorAlert: {
-        borderLeftWidth: 6,
-        borderLeftColor: '#ff4444',
+        borderTopWidth: 4,
+        borderTopColor: '#ff4444',
     },
     successAlert: {
-        borderLeftWidth: 6,
-        borderLeftColor: '#4CAF50',
+        borderTopWidth: 4,
+        borderTopColor: '#4CAF50',
+    },
+    alertIconContainer: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 20,
+    },
+    errorIconBg: {
+        backgroundColor: '#ff4444',
+    },
+    successIconBg: {
+        backgroundColor: '#4CAF50',
     },
     alertTitle: {
-        fontSize: 20,
+        fontSize: 24,
         fontWeight: '700',
         marginBottom: 10,
+        color: '#1a1a1a',
     },
     alertMessage: {
         fontSize: 16,
         textAlign: 'center',
-        marginBottom: 20,
-        lineHeight: 22,
+        marginBottom: 25,
+        lineHeight: 24,
+        color: '#666',
     },
     alertButton: {
-        paddingVertical: 10,
-        paddingHorizontal: 30,
-        borderRadius: 8,
-        minWidth: 100,
+        paddingVertical: 12,
+        paddingHorizontal: 40,
+        borderRadius: 12,
+        minWidth: 120,
     },
     errorButton: {
         backgroundColor: '#ff4444',
@@ -249,7 +408,7 @@ const styles = StyleSheet.create({
     alertButtonText: {
         color: 'white',
         fontSize: 16,
-        fontWeight: '600',
+        fontWeight: '700',
         textAlign: 'center',
     },
 });
