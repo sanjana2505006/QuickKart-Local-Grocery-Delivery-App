@@ -91,6 +91,10 @@ export default function Login({ onCreateAccount }) {
                 <Text style={styles.loginButtonText}>Create Account</Text>
             </TouchableOpacity>
 
+            <TouchableOpacity style={styles.guestButton} onPress={() => { if (onCreateAccount) onCreateAccount(); }}>
+                <Text style={styles.guestButtonText}>Continue as Guest</Text>
+            </TouchableOpacity>
+
             <View style={styles.footer}>
                 <Text style={styles.footerText}>
                     By creating an account, you agree to our{' '}
@@ -251,5 +255,19 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '600',
         textAlign: 'center',
+    },
+    guestButton: {
+        backgroundColor: '#fff',
+        borderWidth: 1,
+        borderColor: '#4CAF50',
+        padding: 14,
+        borderRadius: 8,
+        alignItems: 'center',
+        marginBottom: 20,
+    },
+    guestButtonText: {
+        color: '#4CAF50',
+        fontSize: 16,
+        fontWeight: '700',
     },
 });
