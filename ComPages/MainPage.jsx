@@ -66,9 +66,19 @@ export default function MainPage() {
     const [searchText, setSearchText] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [showOrderHistory, setShowOrderHistory] = useState(false);
+    const [cartItemCount, setCartItemCount] = useState(0);
+
+    // Subscribe to cart changes
+    React.useEffect(() => {
+        const unsubscribe = CartService.subscribe((cart) => {
+            setCartItemCount(CartService.getItemCount());
+        });
+        return unsubscribe;
+    }, []);
 
     const handleRepeatOrder = (items) => {
         CartService.addItems(items);
+        setShowOrderHistory(false); // Go back to main page to see the cart update
     };
 
     if (showOrderHistory) {
@@ -124,7 +134,14 @@ export default function MainPage() {
     const BottomNavBar = () => (
         <View style={styles.bottomNavContainer}>
             <TouchableOpacity style={styles.navItem}>
-                <Ionicons name="cart-outline" size={24} color="#1A1A1A" />
+                <View>
+                    <Ionicons name="cart-outline" size={24} color="#1A1A1A" />
+                    {cartItemCount > 0 && (
+                        <View style={styles.badgeContainer}>
+                            <Text style={styles.badgeText}>{cartItemCount}</Text>
+                        </View>
+                    )}
+                </View>
             </TouchableOpacity>
             <TouchableOpacity style={styles.navItem}>
                 <Ionicons name="person-outline" size={24} color="#1A1A1A" />
@@ -444,6 +461,24 @@ const styles = StyleSheet.create({
     navItem: {
         alignItems: "center",
         justifyContent: "center",
+    },
+    badgeContainer: {
+        position: 'absolute',
+        top: -8,
+        right: -8,
+        backgroundColor: '#FF3B30',
+        borderRadius: 10,
+        width: 18,
+        height: 18,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 1.5,
+        borderColor: '#fff',
+    },
+    badgeText: {
+        color: '#fff',
+        fontSize: 10,
+        fontWeight: 'bold',
     },
     categoryGrid: {
         flexDirection: "row",
