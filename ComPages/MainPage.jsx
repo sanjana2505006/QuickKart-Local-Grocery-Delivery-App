@@ -12,6 +12,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import OrderHistory from '../components/OrderHistory';
+import CartScreen from '../components/CartScreen';
+import { CartService } from '../services/CartService';
 
 const GROCERY_DATA = [
     {
@@ -248,6 +250,14 @@ export default function MainPage() {
     const [searchText, setSearchText] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [showOrderHistory, setShowOrderHistory] = useState(false);
+    const [showCart, setShowCart] = useState(false);
+    const [cartCount, setCartCount] = useState(0);
+    React.useEffect(() => {
+        const unsub = CartService.subscribe(() => {
+            setCartCount(CartService.getItemCount());
+        });
+        return unsub;
+    }, []);
 
     const handleRepeatOrder = (items) => {
         CartService.addItems(items);
@@ -260,6 +270,10 @@ export default function MainPage() {
                 onBack={() => setShowOrderHistory(false)}
             />
         );
+    }
+
+    if (showCart) {
+        return <CartScreen onClose={() => setShowCart(false)} />;
     }
 
     const filteredData = GROCERY_DATA.map((section) => {
@@ -362,12 +376,23 @@ export default function MainPage() {
             {/* Top Header */}
             <View style={styles.topHeader}>
                 <Text style={styles.topHeaderTitle}>Grocery Shopping</Text>
-                <TouchableOpacity
-                    style={styles.ordersButton}
-                    onPress={() => setShowOrderHistory(true)}
-                >
-                    <Ionicons name="receipt-outline" size={24} color="#2c3e50" />
-                </TouchableOpacity>
+                <View style={{flexDirection:'row', alignItems:'center'}}>
+                    <TouchableOpacity
+                        style={styles.ordersButton}
+                        onPress={() => setShowOrderHistory(true)}
+                    >
+                        <Ionicons name="receipt-outline" size={24} color="#2c3e50" />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={[styles.ordersButton, {marginLeft:10}]} onPress={() => setShowCart(true)}>
+                        <Ionicons name="cart-outline" size={24} color="#2c3e50" />
+                        {cartCount > 0 && (
+                            <View style={styles.cartBadge}>
+                                <Text style={styles.cartBadgeText}>{cartCount}</Text>
+                            </View>
+                        )}
+                    </TouchableOpacity>
+                </View>
             </View>
 
             {/* Search Bar */}
@@ -421,6 +446,7 @@ const styles = StyleSheet.create({
         padding: 10,
         borderRadius: 12,
         backgroundColor: "#F5F5F5",
+        position: 'relative',
     },
     searchContainer: {
         paddingHorizontal: 20,
@@ -540,6 +566,22 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         borderColor: "#4CAF50",
     },
+    cartBadge: {
+        position: 'absolute',
+        right: -6,
+        top: -6,
+        backgroundColor: '#E74C3C',
+        width: 18,
+        height: 18,
+        borderRadius: 9,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    cartBadgeText: {
+        color: '#fff',
+        fontSize: 10,
+        fontWeight: '800',
+    },
     categoryImage: {
         width: 40,
         height: 40,
@@ -618,74 +660,4 @@ const styles = StyleSheet.create({
         elevation: 4,
     },
 });
-
-// Cart Service - Easy integration point for cart and checkout features
-class CartServiceImpl {
-    constructor() {
-        this.cart = [];
-        this.listeners = [];
-    }
-
-    // Add items to cart (for repeat orders)
-    addItems(items) {
-        items.forEach(item => {
-            const existingItem = this.cart.find(cartItem => cartItem.name === item.name);
-            if (existingItem) {
-                existingItem.quantity += item.quantity;
-            } else {
-                this.cart.push({ ...item });
-            }
-        });
-        this.notifyListeners();
-    }
-
-    // Add single item to cart
-    addItem(item) {
-        const existingItem = this.cart.find(cartItem => cartItem.name === item.name);
-        if (existingItem) {
-            existingItem.quantity += 1;
-        } else {
-            this.cart.push({ ...item, quantity: 1 });
-        }
-        this.notifyListeners();
-    }
-
-    // Get cart items
-    getCart() {
-        return this.cart;
-    }
-
-    // Get cart total
-    getTotal() {
-        return this.cart.reduce((total, item) => {
-            const price = parseFloat(item.price.replace('$', ''));
-            return total + (price * item.quantity);
-        }, 0);
-    }
-
-    // Clear cart
-    clearCart() {
-        this.cart = [];
-        this.notifyListeners();
-    }
-
-    // Subscribe to cart changes
-    subscribe(listener) {
-        this.listeners.push(listener);
-        return () => {
-            this.listeners = this.listeners.filter(l => l !== listener);
-        };
-    }
-
-    // Notify all listeners of cart changes
-    notifyListeners() {
-        this.listeners.forEach(listener => listener(this.cart));
-    }
-
-    // Get cart item count
-    getItemCount() {
-        return this.cart.reduce((count, item) => count + item.quantity, 0);
-    }
-}
-
-export const CartService = new CartServiceImpl();
+ 
