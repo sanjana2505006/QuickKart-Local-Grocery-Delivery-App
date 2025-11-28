@@ -32,6 +32,17 @@ const GROCERY_DATA = [
             ...dairyData.slice(0, 2),
         ],
     },
+    {        title: "All",
+        data: [
+            ...fruitsData,
+            ...vegetablesData,
+            ...dairyData,
+            ...bakeryData,
+            ...snacksData,
+            ...beveragesData,
+            ...meatData,
+        ],
+    },
     {
         title: "Fruits",
         data: fruitsData,
@@ -226,7 +237,7 @@ export default function MainPage() {
                         <View style={styles.sectionContainer}>
                             <Text style={styles.sectionTitle}>Grocery & Kitchen</Text>
                             <View style={styles.categoryGrid}>
-                                {CATEGORIES.filter(c => c.name !== "All").map((cat, index) => (
+                                {CATEGORIES.map((cat, index) => (
                                     <TouchableOpacity
                                         key={index}
                                         style={styles.gridCategoryCard}
@@ -244,7 +255,7 @@ export default function MainPage() {
                         {/* Show Popular items or other sections for "All" view if desired, 
                             or just the categories as the main entry point. 
                             Let's show "Popular" below the categories for quick access. */}
-                        {GROCERY_DATA.filter(s => s.title === "Popular").map((section) => (
+                        {GROCERY_DATA.map((section) => (
                             <View key={section.title} style={styles.sectionContainer}>
                                 <Text style={styles.sectionTitle}>{section.title}</Text>
                                 <View style={styles.gridContainer}>
