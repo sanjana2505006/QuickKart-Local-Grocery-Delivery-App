@@ -11,6 +11,7 @@ export default function Login({ onCreateAccount }) {
     const [alertMessage, setAlertMessage] = useState("");
     const [alertType, setAlertType] = useState("");
     const [loading, setLoading] = useState(false);
+    const [savedUser, setSavedUser] = useState(null);
 
     useEffect(() => {
         loadUserData();
@@ -22,11 +23,23 @@ export default function Login({ onCreateAccount }) {
             const savedEmail = await AsyncStorage.getItem('userEmail');
             const savedPhone = await AsyncStorage.getItem('userPhone');
 
-            if (savedName) setName(savedName);
-            if (savedEmail) setEmail(savedEmail);
-            if (savedPhone) setPhone(savedPhone);
+            if (savedName && savedEmail && savedPhone) {
+                setSavedUser({
+                    name: savedName,
+                    email: savedEmail,
+                    phone: savedPhone
+                });
+            }
         } catch (error) {
             console.log('Error loading user data:', error);
+        }
+    };
+
+    const fillSavedData = () => {
+        if (savedUser) {
+            setName(savedUser.name);
+            setEmail(savedUser.email);
+            setPhone(savedUser.phone);
         }
     };
 
@@ -107,6 +120,13 @@ export default function Login({ onCreateAccount }) {
                 </View>
                 <Text style={styles.title}>Create Account</Text>
                 <Text style={styles.subtitle}>Join us and get your groceries delivered fast</Text>
+
+                {savedUser && (
+                    <TouchableOpacity style={styles.quickFillButton} onPress={fillSavedData}>
+                        <Ionicons name="flash" size={16} color="#4CAF50" style={{ marginRight: 6 }} />
+                        <Text style={styles.quickFillText}>Continue as {savedUser.name}</Text>
+                    </TouchableOpacity>
+                )}
             </View>
 
             {/* Input Fields */}
@@ -269,6 +289,22 @@ const styles = StyleSheet.create({
         color: "#666",
         textAlign: "center",
         lineHeight: 22,
+    },
+    quickFillButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#E8F5E9',
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        borderRadius: 20,
+        marginTop: 15,
+        borderWidth: 1,
+        borderColor: '#C8E6C9',
+    },
+    quickFillText: {
+        color: '#4CAF50',
+        fontWeight: '600',
+        fontSize: 14,
     },
     formContainer: {
         marginBottom: 30,

@@ -5,6 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 
 import OrderHistory from '../components/OrderHistory';
 import Heart from './Heart';
+import Cart from './Cart';
 
 import { CATEGORIES } from "../data/categories";
 import { fruitsData } from "../data/fruits";
@@ -148,6 +149,15 @@ export default function MainPage() {
                 favorites={favorites}
                 onRemove={(item) => FavoritesService.removeItem(item)}
                 onAddToCart={(item) => CartService.addItem(item)}
+                onBack={() => setActiveTab("Home")}
+            />
+        );
+    }
+
+    if (activeTab === "Cart") {
+        return (
+            <Cart
+                cartService={CartService}
                 onBack={() => setActiveTab("Home")}
             />
         );
@@ -778,6 +788,25 @@ class CartServiceImpl {
         } else {
             this.cart.push({ ...item, quantity: 1 });
         }
+        this.notifyListeners();
+    }
+
+    // Decrease item quantity
+    decreaseItem(item) {
+        const existingItem = this.cart.find(cartItem => cartItem.name === item.name);
+        if (existingItem) {
+            if (existingItem.quantity > 1) {
+                existingItem.quantity -= 1;
+            } else {
+                this.cart = this.cart.filter(cartItem => cartItem.name !== item.name);
+            }
+            this.notifyListeners();
+        }
+    }
+
+    // Remove item completely
+    removeItem(item) {
+        this.cart = this.cart.filter(cartItem => cartItem.name !== item.name);
         this.notifyListeners();
     }
 
