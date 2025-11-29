@@ -7,21 +7,64 @@ import {
   StyleSheet,
   Image,
   Alert,
+  RefreshControl,
+  TextInput,
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
 export default function OrderHistory({ orderService, onRepeatOrder, onBack }) {
   const [orders, setOrders] = useState([]);
+  const [filteredOrders, setFilteredOrders] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
 
   useEffect(() => {
     if (orderService) {
-      setOrders(orderService.getOrders());
+      const allOrders = orderService.getOrders();
+      setOrders(allOrders);
+      setFilteredOrders(allOrders);
       const unsubscribe = orderService.subscribe((updatedOrders) => {
         setOrders(updatedOrders);
+        filterOrders(updatedOrders, searchQuery, statusFilter);
       });
       return unsubscribe;
     }
   }, [orderService]);
+
+  useEffect(() => {
+    filterOrders(orders, searchQuery, statusFilter);
+  }, [searchQuery, statusFilter, orders]);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    // Simulate refresh - in real app, this would fetch from API
+    setTimeout(() => {
+      if (orderService) {
+        const refreshedOrders = orderService.getOrders();
+        setOrders(refreshedOrders);
+        filterOrders(refreshedOrders, searchQuery, statusFilter);
+      }
+      setRefreshing(false);
+    }, 1000);
+  };
+
+  const filterOrders = (orderList, query, status) => {
+    let filtered = orderList;
+    
+    if (status !== "All") {
+      filtered = filtered.filter(order => order.status === status);
+    }
+    
+    if (query.trim()) {
+      filtered = filtered.filter(order => 
+        order.id.toLowerCase().includes(query.toLowerCase()) ||
+        order.items.some(item => item.name.toLowerCase().includes(query.toLowerCase()))
+      );
+    }
+    
+    setFilteredOrders(filtered);
+  };
 
   const getStatusDetails = (status) => {
     switch (status) {
@@ -76,13 +119,14 @@ export default function OrderHistory({ orderService, onRepeatOrder, onBack }) {
       return;
     }
 
+    // Enhanced repeat order with item selection
     Alert.alert(
       "Repeat Order",
-      `Add ${order.items.length} items from order #${order.id} to cart?`,
+      `Add ${order.items.length} items from order #${order.id} to cart?\n\nItems: ${order.items.map(item => `${item.name} (${item.quantity})`).join(', ')}`,
       [
         { text: "Cancel", style: "cancel" },
         {
-          text: "Add to Cart",
+          text: "Add All Items",
           onPress: () => {
             if (onRepeatOrder) {
               onRepeatOrder(order.items);
@@ -119,17 +163,69 @@ export default function OrderHistory({ orderService, onRepeatOrder, onBack }) {
       </View>
 
       {/* Orders List */}
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        {orders.length === 0 ? (
-          <View style={styles.emptyState}>
-            <Icon name="receipt-long" size={64} color="#CCCCCC" />
-            <Text style={styles.emptyStateTitle}>No orders yet</Text>
-            <Text style={styles.emptyStateSubtitle}>
-              Your order history will appear here
-            </Text>
-          </View>
+      {/* Search and Filter */}
+      <View style={styles.searchContainer}>
+        <View style={styles.searchBar}>
+          <Icon name="search" size={20} color="#666" />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search orders or items..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholderTextColor="#999"
+          />
+        </View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterContainer}>
+          {["All", "Pending", "Accepted", "Out for Delivery", "Delivered", "Cancelled"].map(status => (
+            <TouchableOpacity
+              key={status}
+              style={[styles.filterChip, statusFilter === status && styles.activeFilterChip]}
+              onPress={() => setStatusFilter(status)}
+            >
+              <Text style={[styles.filterText, statusFilter === status && styles.activeFilterText]}>
+                {status}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
+
+      <ScrollView 
+        style={styles.scrollView} 
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
+        {filteredOrders.length === 0 ? (
+          searchQuery || statusFilter !== "All" ? (
+            <View style={styles.emptyState}>
+              <Icon name="search-off" size={64} color="#CCCCCC" />
+              <Text style={styles.emptyStateTitle}>No orders found</Text>
+              <Text style={styles.emptyStateSubtitle}>
+                Try adjusting your search or filter
+              </Text>
+              <TouchableOpacity 
+                style={styles.clearFiltersButton}
+                onPress={() => {
+                  setSearchQuery("");
+                  setStatusFilter("All");
+                }}
+              >
+                <Text style={styles.clearFiltersText}>Clear Filters</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={styles.emptyState}>
+              <Icon name="receipt-long" size={64} color="#CCCCCC" />
+              <Text style={styles.emptyStateTitle}>No orders yet</Text>
+              <Text style={styles.emptyStateSubtitle}>
+                Your order history will appear here
+              </Text>
+            </View>
+          )
         ) : (
-          orders.map((order) => {
+          filteredOrders.map((order) => {
             const statusDetails = getStatusDetails(order.status);
             return (
               <View key={order.id} style={styles.orderCard}>
@@ -161,11 +257,25 @@ export default function OrderHistory({ orderService, onRepeatOrder, onBack }) {
                   <Text style={styles.itemsSummary} numberOfLines={2}>
                     {getOrderSummary(order.items)}
                   </Text>
-                  <View style={styles.deliveryInfo}>
-                    <Icon name="location-on" size={14} color="#666" />
-                    <Text style={styles.deliveryText} numberOfLines={1}>
-                      {order.deliveryAddress}
-                    </Text>
+                  <View style={styles.orderMeta}>
+                    <View style={styles.deliveryInfo}>
+                      <Icon name="location-on" size={14} color="#666" />
+                      <Text style={styles.deliveryText} numberOfLines={1}>
+                        {order.deliveryAddress}
+                      </Text>
+                    </View>
+                    {order.paymentMethod && (
+                      <View style={styles.paymentInfo}>
+                        <Icon name="payment" size={14} color="#666" />
+                        <Text style={styles.paymentText}>{order.paymentMethod}</Text>
+                      </View>
+                    )}
+                    {order.deliveryTime && order.deliveryTime !== "Calculating..." && (
+                      <View style={styles.timeInfo}>
+                        <Icon name="schedule" size={14} color="#4CAF50" />
+                        <Text style={styles.timeText}>Delivered in {order.deliveryTime}</Text>
+                      </View>
+                    )}
                   </View>
                 </View>
 
@@ -241,6 +351,60 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#666",
     marginTop: 2,
+  },
+  searchContainer: {
+    backgroundColor: "#fff",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F0F0F0",
+  },
+  searchBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F8F9FA",
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    marginBottom: 12,
+  },
+  searchInput: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingLeft: 8,
+    fontSize: 16,
+    color: "#1A1A1A",
+  },
+  filterContainer: {
+    flexDirection: "row",
+  },
+  filterChip: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: "#F0F0F0",
+    marginRight: 8,
+  },
+  activeFilterChip: {
+    backgroundColor: "#4CAF50",
+  },
+  filterText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#666",
+  },
+  activeFilterText: {
+    color: "#fff",
+  },
+  clearFiltersButton: {
+    backgroundColor: "#4CAF50",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+    marginTop: 16,
+  },
+  clearFiltersText: {
+    color: "#fff",
+    fontWeight: "600",
   },
   scrollView: {
     flex: 1,
@@ -318,6 +482,9 @@ const styles = StyleSheet.create({
   orderSummary: {
     marginVertical: 4,
   },
+  orderMeta: {
+    gap: 6,
+  },
   itemsSummary: {
     fontSize: 14,
     color: "#666",
@@ -328,11 +495,30 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
+  paymentInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  timeInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   deliveryText: {
     fontSize: 13,
     color: "#666",
     marginLeft: 6,
     flex: 1,
+  },
+  paymentText: {
+    fontSize: 13,
+    color: "#666",
+    marginLeft: 6,
+  },
+  timeText: {
+    fontSize: 13,
+    color: "#4CAF50",
+    marginLeft: 6,
+    fontWeight: "600",
   },
   orderFooter: {
     flexDirection: "row",
