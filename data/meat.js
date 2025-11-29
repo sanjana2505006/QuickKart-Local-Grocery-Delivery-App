@@ -6,7 +6,7 @@ export const meatData = [
         originalPrice: "₹350",
         weight: "1 kg",
         discount: "20% OFF",
-        image: "https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8ZnJlc2glMjBDaGlja2VuJTIwYnJlYXN0JTIwbWVhdHxlbnwwfHwwfHx8MA%3D%3D"
     },
     {
         id: 2,
@@ -15,7 +15,7 @@ export const meatData = [
         originalPrice: "₹1100",
         weight: "500g",
         discount: "23% OFF",
-        image: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://plus.unsplash.com/premium_photo-1723672916559-46729809c434?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTN8fEZpbGxldHxlbnwwfHwwfHx8MA%3D%3D"
     },
     {
         id: 3,
@@ -24,7 +24,7 @@ export const meatData = [
         originalPrice: "₹700",
         weight: "1 kg",
         discount: "21% OFF",
-        image: "https://images.unsplash.com/photo-1602472919742-4f0511b2726a?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://plus.unsplash.com/premium_photo-1668616816720-c293b5f4debd?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8bXV0dG9ufGVufDB8fDB8fHww"
     },
     {
         id: 4,
@@ -33,7 +33,7 @@ export const meatData = [
         originalPrice: "₹400",
         weight: "1 kg",
         discount: "20% OFF",
-        image: "https://images.unsplash.com/photo-1603360946941-34d3a54495b7?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://5.imimg.com/data5/ANDROID/Default/2024/1/379918358/KH/US/IQ/205914983/product-jpeg-500x500.jpg"
     },
     {
         id: 5,
@@ -42,7 +42,7 @@ export const meatData = [
         originalPrice: "₹600",
         weight: "1 kg",
         discount: "20% OFF",
-        image: "https://images.unsplash.com/photo-1558036117-15e82a2c9a9a?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGgw3HIsvjrYnTv44Njpg_IyGbOQeapchcTw&s"
     },
     {
         id: 6,
@@ -51,7 +51,7 @@ export const meatData = [
         originalPrice: "₹850",
         weight: "500g",
         discount: "20% OFF",
-        image: "https://images.unsplash.com/photo-1587335045892-4dd0d5d086ba?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://media.istockphoto.com/id/1311601571/photo/large-frozen-headless-langoustine-prawns-in-a-package.jpg?s=612x612&w=0&k=20&c=yJilxyq1iN9OEG8dMfL23k15A8w4zFH-RQup5zbArwU="
     },
     {
         id: 7,
@@ -60,7 +60,7 @@ export const meatData = [
         originalPrice: "₹340",
         weight: "1 kg",
         discount: "21% OFF",
-        image: "https://images.unsplash.com/photo-1603360946941-34d3a54495b7?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://assets.tendercuts.in/product/C/H/a62a73e9-a7d5-4f79-86c1-9f6127e7026e.jpg"
     },
     {
         id: 8,
@@ -69,7 +69,7 @@ export const meatData = [
         originalPrice: "₹900",
         weight: "500g",
         discount: "20% OFF",
-        image: "https://images.unsplash.com/photo-1588168333986-5078d3ae3976?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://media.istockphoto.com/id/1438426028/photo/usda-choice-beef-rib-eye-steaks-for-sale-at-a-supermarket.jpg?s=612x612&w=0&k=20&c=FCcdQ-BYaOZbVJo623TCQpLY-uoI4DQgAG6fD6Vkngc="
     },
     {
         id: 9,
@@ -78,7 +78,7 @@ export const meatData = [
         originalPrice: "₹475",
         weight: "1.5 kg",
         discount: "20% OFF",
-        image: "https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://thumbs.dreamstime.com/b/whole-raw-free-range-chicken-rustic-skillet-rosemary-leaf-thyme-lemon-red-potatoes-garlic-ready-to-cook-whole-raw-free-110737859.jpg"
     },
     {
         id: 10,
@@ -87,7 +87,7 @@ export const meatData = [
         originalPrice: "₹1200",
         weight: "500g",
         discount: "21% OFF",
-        image: "https://images.unsplash.com/photo-1599083877721-5b784a354c26?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://cdn.apartmenttherapy.info/image/upload/f_jpg,q_auto:eco,c_fill,g_auto,w_1500,ar_16:9/tk%2Fphoto%2F2025%2F07-2025%2F2025-07-tuna-steak%2Ftuna-steak-865"
     },
     {
         id: 11,
@@ -96,7 +96,7 @@ export const meatData = [
         originalPrice: "₹375",
         weight: "500g",
         discount: "20% OFF",
-        image: "https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://static.vecteezy.com/system/resources/thumbnails/053/534/577/small_2x/raw-minced-chicken-with-salt-spices-and-herbs-photo.JPG"
     },
     {
         id: 12,
@@ -105,6 +105,6 @@ export const meatData = [
         originalPrice: "₹1100",
         weight: "500g",
         discount: "20% OFF",
-        image: "https://images.unsplash.com/photo-1602472919742-4f0511b2726a?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSP9TvWvWC0lV90JVMgyXpnY324B2Dzo9Et4Q&s"
     }
 ];

@@ -15,7 +15,7 @@ export const beveragesData = [
         originalPrice: "₹150",
         weight: "1L",
         discount: "20% OFF",
-        image: "https://images.unsplash.com/photo-1600271886742-f049cd470bba?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://plus.unsplash.com/premium_photo-1675667381451-be2fc08a122e?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8RnJlc2glMjBPcmFuZ2UlMjBKdWljZXxlbnwwfHwwfHx8MA%3D%3D",
     },
     {
         id: 3,
@@ -23,8 +23,8 @@ export const beveragesData = [
         price: "₹20",
         originalPrice: "₹25",
         weight: "1L",
-        discount: "20% OFF",
-        image: "https://images.unsplash.com/photo-1548839149-851a5c6dacb0?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        discount: "4% OFF",
+        image: "https://images.unsplash.com/photo-1629470937844-02a0834fc58e?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8YXF1YWZpbmUlMjBXYXRlcnxlbnwwfHwwfHx8MA%3D%3D",
     },
     {
         id: 4,
@@ -33,7 +33,7 @@ export const beveragesData = [
         originalPrice: "₹55",
         weight: "750ml",
         discount: "24% OFF",
-        image: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://images.unsplash.com/photo-1546695259-ad30ff3fd643?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8cGVwc2l8ZW58MHx8MHx8fDA%3D"
     },
     {
         id: 5,
@@ -42,7 +42,7 @@ export const beveragesData = [
         originalPrice: "₹120",
         weight: "1L",
         discount: "21% OFF",
-        image: "https://images.unsplash.com/photo-1621939514649-280e2ee25f60?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://images.unsplash.com/photo-1623065422902-30a2d299bbe4?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8TWFuZ28lMjBKdWljZXxlbnwwfHwwfHx8MA%3D%3D",
     },
     {
         id: 6,
@@ -51,7 +51,7 @@ export const beveragesData = [
         originalPrice: "₹50",
         weight: "750ml",
         discount: "20% OFF",
-        image: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://images.unsplash.com/photo-1696706980174-79c1c11aa683?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fFNwcml0ZXxlbnwwfHwwfHx8MA%3D%3D",
     },
     {
         id: 7,
@@ -60,7 +60,7 @@ export const beveragesData = [
         originalPrice: "₹140",
         weight: "1L",
         discount: "21% OFF",
-        image: "https://images.unsplash.com/photo-1600271886742-f049cd470bba?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://images.unsplash.com/photo-1727989815707-1b9e8f376775?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8QXBwbGUlMjBKdWljZXxlbnwwfHwwfHx8MA%3D%3D",
     },
     {
         id: 8,
@@ -69,7 +69,7 @@ export const beveragesData = [
         originalPrice: "₹145",
         weight: "250ml",
         discount: "21% OFF",
-        image: "https://images.unsplash.com/photo-1600271886742-f049cd470bba?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://images.unsplash.com/photo-1721149831436-9338416a0a29?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8UmVkJTIwQnVsbCUyMEVuZXJneSUyMERyaW5rfGVufDB8fDB8fHww",
     },
     {
         id: 9,
@@ -78,7 +78,7 @@ export const beveragesData = [
         originalPrice: "₹80",
         weight: "500ml",
         discount: "19% OFF",
-        image: "https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://images.unsplash.com/photo-1623084921164-4a8c5c37a912?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8TGVtb25hZGV8ZW58MHx8MHx8fDA%3D",
     },
     {
         id: 10,
@@ -87,7 +87,7 @@ export const beveragesData = [
         originalPrice: "₹65",
         weight: "500ml",
         discount: "23% OFF",
-        image: "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8SWNlZCUyMFRlYXxlbnwwfHwwfHx8MA%3D%3D",
     },
     {
         id: 11,
@@ -96,7 +96,7 @@ export const beveragesData = [
         originalPrice: "₹90",
         weight: "500ml",
         discount: "22% OFF",
-        image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://images.unsplash.com/photo-1518484157348-2cd88dc70d1f?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8Q29jb251dCUyMFdhdGVyfGVufDB8fDB8fHww",
     },
     {
         id: 12,
@@ -105,6 +105,6 @@ export const beveragesData = [
         originalPrice: "₹45",
         weight: "1L",
         discount: "22% OFF",
-        image: "https://images.unsplash.com/photo-1548839149-851a5c6dacb0?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://plus.unsplash.com/premium_photo-1687354256687-b5ee47c043c1?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8U3BhcmtsaW5nJTIwV2F0ZXJ8ZW58MHx8MHx8fDA%3D",
     }
 ];

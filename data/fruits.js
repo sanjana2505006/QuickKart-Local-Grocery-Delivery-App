@@ -6,7 +6,7 @@ export const fruitsData = [
         originalPrice: "₹140",
         weight: "1 kg",
         discount: "21% OFF",
-        image: "https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8YXBwbGV8ZW58MHx8MHx8fDA%3D"
     },
     {
         id: 2,
@@ -15,7 +15,7 @@ export const fruitsData = [
         originalPrice: "₹70",
         weight: "1 dozen",
         discount: "21% OFF",
-        image: "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://images.unsplash.com/photo-1603833665858-e61d17a86224?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8YmFuYW5hc3xlbnwwfHwwfHx8MA%3D%3D"
     },
     {
         id: 3,
@@ -24,7 +24,7 @@ export const fruitsData = [
         originalPrice: "₹170",
         weight: "1 kg",
         discount: "21% OFF",
-        image: "https://images.unsplash.com/photo-1547514701-42782101795e?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8b3Jhbmdlc3xlbnwwfHwwfHx8MA%3D%3D"
     },
     {
         id: 4,
@@ -33,7 +33,7 @@ export const fruitsData = [
         originalPrice: "₹200",
         weight: "500g",
         discount: "20% OFF",
-        image: "https://images.unsplash.com/photo-1591081658714-f576fb7ea3ed?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://images.unsplash.com/photo-1631299106224-aae61c217164?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Z3JhcGVzfGVufDB8fDB8fHww"
     },
     {
         id: 5,
@@ -42,7 +42,7 @@ export const fruitsData = [
         originalPrice: "₹280",
         weight: "250g",
         discount: "21% OFF",
-        image: "https://images.unsplash.com/photo-1464454709131-ffd692591ee5?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://plus.unsplash.com/premium_photo-1689344314069-b60bf06d564c?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTN8fHN0cmF3YmVycnl8ZW58MHx8MHx8fDA%3D"
     },
     {
         id: 6,
@@ -51,7 +51,7 @@ export const fruitsData = [
         originalPrice: "₹225",
         weight: "1 kg",
         discount: "20% OFF",
-        image: "https://images.unsplash.com/photo-1553279768-865429fa0078?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bWFuZ298ZW58MHx8MHx8fDA%3D"
     },
     {
         id: 7,
@@ -60,7 +60,7 @@ export const fruitsData = [
         originalPrice: "₹240",
         weight: "500g",
         discount: "21% OFF",
-        image: "https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://plus.unsplash.com/premium_photo-1674382739482-5d36b98d653a?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8a2l3aXxlbnwwfHwwfHx8MA%3D%3D"
     },
     {
         id: 8,
@@ -69,7 +69,7 @@ export const fruitsData = [
         originalPrice: "₹175",
         weight: "1 kg",
         discount: "20% OFF",
-        image: "https://images.unsplash.com/photo-1541344999736-83eca272f4fd?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://plus.unsplash.com/premium_photo-1668076515507-c5bc223c99a4?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cG9tZWdyYW5hdGV8ZW58MHx8MHx8fDA%3D"
     },
     {
         id: 9,
@@ -78,7 +78,7 @@ export const fruitsData = [
         originalPrice: "₹110",
         weight: "1 piece",
         discount: "23% OFF",
-        image: "https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://images.unsplash.com/photo-1589820296156-2454bb8a6ad1?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cGluZWFwcGxlfGVufDB8fDB8fHww"
     },
     {
         id: 10,
@@ -87,7 +87,7 @@ export const fruitsData = [
         originalPrice: "₹95",
         weight: "1 piece",
         discount: "21% OFF",
-        image: "https://images.unsplash.com/photo-1563119662-1c41e30b5617?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8V2F0ZXJtZWxvbnN8ZW58MHx8MHx8fDA%3D"
     },
     {
         id: 11,
@@ -96,7 +96,7 @@ export const fruitsData = [
         originalPrice: "₹80",
         weight: "1 kg",
         discount: "19% OFF",
-        image: "https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://images.unsplash.com/photo-1526318472351-c75fcf070305?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cGFwYXlhfGVufDB8fDB8fHww"
     },
     {
         id: 12,
@@ -105,6 +105,6 @@ export const fruitsData = [
         originalPrice: "₹120",
         weight: "1 kg",
         discount: "21% OFF",
-        image: "https://images.unsplash.com/photo-1541344999736-83eca272f4fd?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://images.unsplash.com/photo-1693399991519-bef70bed19a2?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Z3VhdmF8ZW58MHx8MHx8fDA%3D"
     }
 ];

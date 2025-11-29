@@ -9,7 +9,7 @@ export default function Login({ onCreateAccount }) {
     const [phone, setPhone] = useState("");
     const [alertVisible, setAlertVisible] = useState(false);
     const [alertMessage, setAlertMessage] = useState("");
-    const [alertType, setAlertType] = useState(""); 
+    const [alertType, setAlertType] = useState("");
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {

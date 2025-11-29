@@ -51,7 +51,7 @@ export const vegetablesData = [
         originalPrice: "₹90",
         weight: "1 piece",
         discount: "22% OFF",
-        image: "https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://media.istockphoto.com/id/518951178/photo/fresh-raw-green-broccoli-in-bowl.webp?a=1&b=1&s=612x612&w=0&k=20&c=bKY-ggS9Dt0GjenJTH8p4dKAx8e8BG3CBrq4Ji36ccw="
     },
     {
         id: 7,
@@ -60,7 +60,7 @@ export const vegetablesData = [
         originalPrice: "₹65",
         weight: "1 piece",
         discount: "23% OFF",
-        image: "https://images.unsplash.com/photo-1594282482185-1a8d5e1cadea?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://images.unsplash.com/photo-1692956706779-576c151ec712?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8Q2F1bGlmbG93ZXJ8ZW58MHx8MHx8fDA%3D"
     },
     {
         id: 8,
@@ -69,7 +69,7 @@ export const vegetablesData = [
         originalPrice: "₹150",
         weight: "500g",
         discount: "20% OFF",
-        image: "https://images.unsplash.com/photo-1525607551107-68e20c75b1a9?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://images.unsplash.com/photo-1592548868664-f8b4e4b1cfb7?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8UGVwcGVyc3xlbnwwfHwwfHx8MA%3D%3D"
     },
     {
         id: 9,
@@ -78,7 +78,7 @@ export const vegetablesData = [
         originalPrice: "₹45",
         weight: "1 piece",
         discount: "22% OFF",
-        image: "https://images.unsplash.com/photo-1594282482185-1a8d5e1cadea?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://images.unsplash.com/photo-1594282486552-05b4d80fbb9f?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Q2FiYmFnZXxlbnwwfHwwfHx8MA%3D%3D"
     },
     {
         id: 10,
@@ -87,7 +87,7 @@ export const vegetablesData = [
         originalPrice: "₹110",
         weight: "500g",
         discount: "23% OFF",
-        image: "https://images.unsplash.com/photo-1570196917323-db64ee5ba0ae?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://plus.unsplash.com/premium_photo-1726729279950-224b83ae7a75?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8QmVhbnN8ZW58MHx8MHx8fDA%3D"
     },
     {
         id: 11,
@@ -96,7 +96,7 @@ export const vegetablesData = [
         originalPrice: "₹40",
         weight: "1 kg",
         discount: "25% OFF",
-        image: "https://images.unsplash.com/photo-1594282482185-1a8d5e1cadea?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://images.unsplash.com/photo-1568584711271-6c929fb49b60?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Q3VjdW1iZXJzfGVufDB8fDB8fHww"
     },
     {
         id: 12,
@@ -105,6 +105,6 @@ export const vegetablesData = [
         originalPrice: "₹70",
         weight: "1 piece",
         discount: "21% OFF",
-        image: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0",
+        image: "https://images.unsplash.com/photo-1693667660375-653320dbebb4?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8TGV0dHVjZXxlbnwwfHwwfHx8MA%3D%3D"
     }
 ];

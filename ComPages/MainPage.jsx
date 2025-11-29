@@ -1,17 +1,10 @@
 import React, { useState } from "react";
-import {
-    StyleSheet,
-    Text,
-    View,
-    SectionList,
-    TextInput,
-    Image,
-    TouchableOpacity,
-    ScrollView,
-} from "react-native";
+import { StyleSheet, Text, View, SectionList, TextInput, Image, TouchableOpacity, ScrollView, Animated, Dimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+
 import OrderHistory from '../components/OrderHistory';
+import Heart from './Heart';
 
 import { CATEGORIES } from "../data/categories";
 import { fruitsData } from "../data/fruits";
@@ -30,6 +23,18 @@ const GROCERY_DATA = [
             ...fruitsData.slice(0, 2),
             ...vegetablesData.slice(0, 2),
             ...dairyData.slice(0, 2),
+        ],
+    },
+    {
+        title: "All",
+        data: [
+            ...fruitsData,
+            ...vegetablesData,
+            ...dairyData,
+            ...bakeryData,
+            ...snacksData,
+            ...beveragesData,
+            ...meatData,
         ],
     },
     {
@@ -67,13 +72,60 @@ export default function MainPage() {
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [showOrderHistory, setShowOrderHistory] = useState(false);
     const [cartItemCount, setCartItemCount] = useState(0);
+    const [activeTab, setActiveTab] = useState("Home");
+    const [favorites, setFavorites] = useState([]);
+    const [toastVisible, setToastVisible] = useState(false);
+    const [toastMessage, setToastMessage] = useState("");
+    const [toastType, setToastType] = useState("success"); // success or error
+    const fadeAnim = React.useRef(new Animated.Value(0)).current;
+    const slideAnim = React.useRef(new Animated.Value(100)).current;
 
-    // Subscribe to cart changes
+    const showToast = (message, type = "success") => {
+        setToastMessage(message);
+        setToastType(type);
+        setToastVisible(true);
+
+        Animated.parallel([
+            Animated.timing(fadeAnim, {
+                toValue: 1,
+                duration: 300,
+                useNativeDriver: true,
+            }),
+            Animated.spring(slideAnim, {
+                toValue: 0,
+                friction: 8,
+                useNativeDriver: true,
+            })
+        ]).start();
+
+        setTimeout(() => {
+            Animated.parallel([
+                Animated.timing(fadeAnim, {
+                    toValue: 0,
+                    duration: 300,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(slideAnim, {
+                    toValue: 100,
+                    duration: 300,
+                    useNativeDriver: true,
+                })
+            ]).start(() => setToastVisible(false));
+        }, 2000);
+    };
+
+    // Subscribe to cart and favorites changes
     React.useEffect(() => {
-        const unsubscribe = CartService.subscribe((cart) => {
+        const unsubscribeCart = CartService.subscribe((cart) => {
             setCartItemCount(CartService.getItemCount());
         });
-        return unsubscribe;
+        const unsubscribeFav = FavoritesService.subscribe((favs) => {
+            setFavorites(favs);
+        });
+        return () => {
+            unsubscribeCart();
+            unsubscribeFav();
+        };
     }, []);
 
     const handleRepeatOrder = (items) => {
@@ -86,6 +138,17 @@ export default function MainPage() {
             <OrderHistory
                 onRepeatOrder={handleRepeatOrder}
                 onBack={() => setShowOrderHistory(false)}
+            />
+        );
+    }
+
+    if (activeTab === "Favorites") {
+        return (
+            <Heart
+                favorites={favorites}
+                onRemove={(item) => FavoritesService.removeItem(item)}
+                onAddToCart={(item) => CartService.addItem(item)}
+                onBack={() => setActiveTab("Home")}
             />
         );
     }
@@ -106,57 +169,88 @@ export default function MainPage() {
         return { ...section, data: filteredItems };
     }).filter((section) => section !== null);
 
-    const renderItem = (item) => (
-        <View key={item.name} style={styles.itemCard}>
-            <View style={styles.cardHeader}>
-                <Text style={styles.itemName} numberOfLines={2}>{item.name}</Text>
-                <TouchableOpacity>
-                    <Ionicons name="heart-outline" size={20} color="#FF6B6B" />
-                </TouchableOpacity>
-            </View>
-
-            <View style={styles.itemImageContainer}>
-                <Image source={{ uri: item.image }} style={styles.itemImage} />
-            </View>
-
-            <View style={styles.cardFooter}>
-                <View>
-                    <Text style={styles.itemPrice}>{item.price}</Text>
-                    <Text style={styles.itemWeight}>for {item.weight}</Text>
-                </View>
-                <TouchableOpacity style={styles.addButton} onPress={() => CartService.addItem(item)}>
-                    <Ionicons name="add" size={24} color="#4CAF50" />
-                </TouchableOpacity>
-            </View>
-        </View>
-    );
-
-    const BottomNavBar = () => (
-        <View style={styles.bottomNavContainer}>
-            <TouchableOpacity style={styles.navItem}>
-                <View>
-                    <Ionicons name="cart-outline" size={24} color="#1A1A1A" />
-                    {cartItemCount > 0 && (
-                        <View style={styles.badgeContainer}>
-                            <Text style={styles.badgeText}>{cartItemCount}</Text>
+    const renderItem = (item) => {
+        const isFavorite = favorites.some(fav => fav.name === item.name);
+        return (
+            <View key={item.name} style={styles.itemCard}>
+                <View style={styles.cardHeader}>
+                    {item.discount && (
+                        <View style={styles.discountBadge}>
+                            <Text style={styles.discountText}>{item.discount}</Text>
                         </View>
                     )}
+                    <View style={{ flex: 1 }} />
+                    <TouchableOpacity onPress={() => {
+                        const isAdded = FavoritesService.toggleFavorite(item);
+                        if (isAdded) {
+                            showToast("Added to favorites", "success");
+                        } else {
+                            showToast("Removed from favorites", "error");
+                        }
+                    }}>
+                        <Ionicons
+                            name={isFavorite ? "heart" : "heart-outline"}
+                            size={20}
+                            color="#FF6B6B"
+                        />
+                    </TouchableOpacity>
                 </View>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.navItem}>
-                <Ionicons name="person-outline" size={24} color="#1A1A1A" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.navItem}>
-                <Ionicons name="home" size={24} color="#1A1A1A" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.navItem}>
-                <Ionicons name="heart-outline" size={24} color="#1A1A1A" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.navItem}>
-                <Ionicons name="menu-outline" size={24} color="#1A1A1A" />
-            </TouchableOpacity>
-        </View>
-    );
+
+                <View style={styles.itemImageContainer}>
+                    <Image source={{ uri: item.image }} style={styles.itemImage} />
+                </View>
+
+                <View style={styles.cardFooter}>
+                    <View>
+                        <Text style={styles.itemPrice}>{item.price}</Text>
+                        <Text style={styles.itemWeight}>for {item.weight}</Text>
+                    </View>
+                    <TouchableOpacity style={styles.addButton} onPress={() => CartService.addItem(item)}>
+                        <Ionicons name="add" size={24} color="#4CAF50" />
+                    </TouchableOpacity>
+                </View>
+            </View>
+        );
+    };
+
+    const BottomNavBar = () => {
+        const tabs = [
+            { name: 'Cart', icon: 'cart', id: 'Cart', badge: cartItemCount },
+            { name: 'Profile', icon: 'person', id: 'Profile' },
+            { name: 'Home', icon: 'home', id: 'Home' },
+            { name: 'Favorites', icon: 'heart', id: 'Favorites' },
+            { name: 'Menu', icon: 'menu', id: 'Menu' },
+        ];
+
+        return (
+            <View style={styles.bottomNavContainer}>
+                {tabs.map((tab) => {
+                    const isActive = activeTab === tab.id;
+                    return (
+                        <TouchableOpacity
+                            key={tab.id}
+                            style={[styles.navItem, isActive && styles.activeNavItem]}
+                            onPress={() => setActiveTab(tab.id)}
+                            activeOpacity={0.7}
+                        >
+                            <View style={styles.navItemContent}>
+                                <Ionicons
+                                    name={isActive ? tab.icon : `${tab.icon}-outline`}
+                                    size={28}
+                                    color={isActive ? "#4CAF50" : "#000"}
+                                />
+                                {tab.badge > 0 && (
+                                    <View style={styles.badgeContainer}>
+                                        <Text style={styles.badgeText}>{tab.badge}</Text>
+                                    </View>
+                                )}
+                            </View>
+                        </TouchableOpacity>
+                    );
+                })}
+            </View>
+        );
+    };
 
     const ListHeader = () => (
         <View>
@@ -226,7 +320,7 @@ export default function MainPage() {
                         <View style={styles.sectionContainer}>
                             <Text style={styles.sectionTitle}>Grocery & Kitchen</Text>
                             <View style={styles.categoryGrid}>
-                                {CATEGORIES.filter(c => c.name !== "All").map((cat, index) => (
+                                {CATEGORIES.map((cat, index) => (
                                     <TouchableOpacity
                                         key={index}
                                         style={styles.gridCategoryCard}
@@ -244,7 +338,7 @@ export default function MainPage() {
                         {/* Show Popular items or other sections for "All" view if desired, 
                             or just the categories as the main entry point. 
                             Let's show "Popular" below the categories for quick access. */}
-                        {GROCERY_DATA.filter(s => s.title === "Popular").map((section) => (
+                        {GROCERY_DATA.map((section) => (
                             <View key={section.title} style={styles.sectionContainer}>
                                 <Text style={styles.sectionTitle}>{section.title}</Text>
                                 <View style={styles.gridContainer}>
@@ -277,7 +371,35 @@ export default function MainPage() {
             </ScrollView>
 
             {/* Bottom Navigation */}
+            {/* Bottom Navigation */}
             <BottomNavBar />
+
+            {/* Toast Notification */}
+            {toastVisible && (
+                <Animated.View
+                    style={[
+                        styles.toastContainer,
+                        {
+                            opacity: fadeAnim,
+                            transform: [{ translateY: slideAnim }]
+                        }
+                    ]}
+                >
+                    <View style={[styles.toastIconContainer, toastType === "error" ? styles.toastError : styles.toastSuccess]}>
+                        <Ionicons
+                            name={toastType === "error" ? "heart-dislike" : "heart"}
+                            size={20}
+                            color={toastType === "error" ? "#fff" : "#FF6B6B"}
+                        />
+                    </View>
+                    <View style={styles.toastContent}>
+                        <Text style={styles.toastTitle}>
+                            {toastType === "error" ? "Removed" : "Success"}
+                        </Text>
+                        <Text style={styles.toastText}>{toastMessage}</Text>
+                    </View>
+                </Animated.View>
+            )}
         </SafeAreaView>
     );
 };
@@ -400,15 +522,16 @@ const styles = StyleSheet.create({
     },
     itemImageContainer: {
         width: "100%",
-        height: 100,
+        height: 120,
         justifyContent: "center",
         alignItems: "center",
         marginBottom: 12,
     },
     itemImage: {
-        width: "80%",
-        height: "80%",
-        resizeMode: "contain",
+        width: "100%",
+        height: "100%",
+        resizeMode: "cover",
+        borderRadius: 12,
     },
     itemName: {
         fontSize: 15,
@@ -461,6 +584,23 @@ const styles = StyleSheet.create({
     navItem: {
         alignItems: "center",
         justifyContent: "center",
+        padding: 8,
+    },
+    activeNavItem: {
+        backgroundColor: "#E8F5E9",
+        borderRadius: 30, // Circular when no text
+        width: 50,
+        height: 50,
+        paddingHorizontal: 0,
+        paddingVertical: 0,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    navItemContent: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100%',
+        height: '100%',
     },
     badgeContainer: {
         position: 'absolute',
@@ -561,6 +701,53 @@ const styles = StyleSheet.create({
         color: '#4CAF50',
         fontWeight: '600',
     },
+    toastContainer: {
+        position: 'absolute',
+        bottom: 110,
+        left: 20,
+        right: 20,
+        backgroundColor: '#fff',
+        borderRadius: 16,
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 16,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 12,
+        elevation: 8,
+        zIndex: 1000,
+        borderLeftWidth: 4,
+        borderLeftColor: '#4CAF50',
+    },
+    toastIconContainer: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 12,
+    },
+    toastSuccess: {
+        backgroundColor: '#FFF0F0',
+    },
+    toastError: {
+        backgroundColor: '#FF6B6B',
+    },
+    toastContent: {
+        flex: 1,
+    },
+    toastTitle: {
+        fontSize: 14,
+        fontWeight: '700',
+        color: '#1A1A1A',
+        marginBottom: 2,
+    },
+    toastText: {
+        color: '#666',
+        fontSize: 13,
+        fontWeight: '500',
+    },
 });
 
 // Cart Service - Easy integration point for cart and checkout features
@@ -633,3 +820,50 @@ class CartServiceImpl {
 }
 
 export const CartService = new CartServiceImpl();
+
+// Favorites Service
+class FavoritesServiceImpl {
+    constructor() {
+        this.favorites = [];
+        this.listeners = [];
+    }
+
+    toggleFavorite(item) {
+        const index = this.favorites.findIndex(fav => fav.name === item.name);
+        let added = false;
+        if (index > -1) {
+            this.favorites.splice(index, 1);
+            added = false;
+        } else {
+            this.favorites.push(item);
+            added = true;
+        }
+        this.notifyListeners();
+        return added;
+    }
+
+    removeItem(item) {
+        const index = this.favorites.findIndex(fav => fav.name === item.name);
+        if (index > -1) {
+            this.favorites.splice(index, 1);
+            this.notifyListeners();
+        }
+    }
+
+    getFavorites() {
+        return this.favorites;
+    }
+
+    subscribe(listener) {
+        this.listeners.push(listener);
+        return () => {
+            this.listeners = this.listeners.filter(l => l !== listener);
+        };
+    }
+
+    notifyListeners() {
+        this.listeners.forEach(listener => listener([...this.favorites]));
+    }
+}
+
+export const FavoritesService = new FavoritesServiceImpl();
