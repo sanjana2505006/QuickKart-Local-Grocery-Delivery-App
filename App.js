@@ -6,14 +6,14 @@ import Login from "./ComPages/Login";
 import MainPage from "./ComPages/MainPage";
 
 function App() {
-  const [currentScreen, setCurrentScreen] = useState("home"); // "home", "login", "main"
+  const [currentScreen, setCurrentScreen] = useState("home");
 
   const renderScreen = () => {
     switch (currentScreen) {
       case "login":
         return <Login onCreateAccount={() => setCurrentScreen("main")} />;
       case "main":
-        return <MainPage />;
+        return <MainPage onLogout={() => setCurrentScreen("login")} />;
       default:
         return <HomePage onGetStarted={() => setCurrentScreen("login")} />;
     }

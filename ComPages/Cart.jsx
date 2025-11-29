@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, Image, TouchableOpacity, ScrollView, StyleSheet, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Cart({ cartService, onBack }) {
     const [cartItems, setCartItems] = useState(cartService.getCart());
@@ -14,6 +15,55 @@ export default function Cart({ cartService, onBack }) {
         });
         return unsubscribe;
     }, [cartService]);
+
+    const handleCheckout = async () => {
+        try {
+            // Create order object
+            const order = {
+                id: `ORD${Date.now()}`,
+                date: new Date().toISOString().split('T')[0],
+                status: 'Processing',
+                total: `$${total.toFixed(2)}`,
+                items: cartItems.map(item => ({
+                    name: item.name,
+                    price: item.price,
+                    quantity: item.quantity,
+                    image: item.image,
+                    weight: item.weight
+                })),
+                deliveryTime: '15 mins',
+                deliveryAddress: '123 Main St, Apartment 4B'
+            };
+
+            // Get existing orders
+            const ordersJson = await AsyncStorage.getItem('userOrders');
+            const orders = ordersJson ? JSON.parse(ordersJson) : [];
+
+            // Add new order
+            orders.unshift(order);
+
+            // Save back to storage
+            await AsyncStorage.setItem('userOrders', JSON.stringify(orders));
+
+            // Clear cart
+            cartService.clearCart();
+
+            // Show success message
+            Alert.alert(
+                'Order Placed!',
+                `Your order #${order.id} has been placed successfully.`,
+                [
+                    {
+                        text: 'OK',
+                        onPress: () => onBack()
+                    }
+                ]
+            );
+        } catch (error) {
+            console.log('Error during checkout:', error);
+            Alert.alert('Error', 'Failed to place order. Please try again.');
+        }
+    };
 
     if (cartItems.length === 0) {
         return (
@@ -83,7 +133,7 @@ export default function Cart({ cartService, onBack }) {
                     <Text style={styles.totalLabel}>Total</Text>
                     <Text style={styles.totalAmount}>${total.toFixed(2)}</Text>
                 </View>
-                <TouchableOpacity style={styles.checkoutButton}>
+                <TouchableOpacity style={styles.checkoutButton} onPress={handleCheckout}>
                     <Text style={styles.checkoutButtonText}>Checkout</Text>
                 </TouchableOpacity>
             </View>

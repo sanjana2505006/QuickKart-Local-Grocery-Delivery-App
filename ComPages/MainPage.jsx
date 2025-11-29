@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View, SectionList, TextInput, Image, TouchableOpacity, ScrollView, Animated, Dimensions } from "react-native";
+import { StyleSheet, Text, View, SectionList, TextInput, Image, TouchableOpacity, ScrollView, Animated, Dimensions, Platform, StatusBar } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 
 import OrderHistory from '../components/OrderHistory';
 import Heart from './Heart';
 import Cart from './Cart';
+import Profile from './Profile';
 
 import { CATEGORIES } from "../data/categories";
 import { fruitsData } from "../data/fruits";
@@ -16,7 +17,6 @@ import { snacksData } from "../data/snacks";
 import { beveragesData } from "../data/beverages";
 import { meatData } from "../data/meat";
 
-// Construct GROCERY_DATA from imported files
 const GROCERY_DATA = [
     {
         title: "Popular",
@@ -47,7 +47,7 @@ const GROCERY_DATA = [
         data: vegetablesData,
     },
     {
-        title: "Dairy", // Matches "Dairy" in categories.js (was "Dairy & Eggs")
+        title: "Dairy",
         data: dairyData,
     },
     {
@@ -77,7 +77,7 @@ export default function MainPage() {
     const [favorites, setFavorites] = useState([]);
     const [toastVisible, setToastVisible] = useState(false);
     const [toastMessage, setToastMessage] = useState("");
-    const [toastType, setToastType] = useState("success"); // success or error
+    const [toastType, setToastType] = useState("success");
     const fadeAnim = React.useRef(new Animated.Value(0)).current;
     const slideAnim = React.useRef(new Animated.Value(100)).current;
 
@@ -158,6 +158,14 @@ export default function MainPage() {
         return (
             <Cart
                 cartService={CartService}
+                onBack={() => setActiveTab("Home")}
+            />
+        );
+    }
+
+    if (activeTab === "Profile") {
+        return (
+            <Profile
                 onBack={() => setActiveTab("Home")}
             />
         );
@@ -301,31 +309,59 @@ export default function MainPage() {
                 </TouchableOpacity>
             </View>
 
-            {/* Search Bar */}
-            <View style={styles.searchContainer}>
-                <TextInput
-                    style={styles.searchInput}
-                    placeholder="Search items..."
-                    value={searchText}
-                    onChangeText={setSearchText}
-                />
-            </View>
 
             {/* Content */}
             <ScrollView contentContainerStyle={styles.listContent} showsVerticalScrollIndicator={false}>
                 {selectedCategory === "All" ? (
                     <>
-                        {/* Banner */}
-                        <View style={styles.bannerContainer}>
-                            <Image
-                                source={{ uri: "https://img.freepik.com/free-photo/shopping-basket-with-grocery-products_23-2148102377.jpg" }}
-                                style={styles.bannerImage}
-                            />
-                            <View style={styles.bannerOverlay}>
-                                <Text style={styles.bannerText}>Fresh Groceries</Text>
-                                <Text style={styles.bannerSubtext}>Delivered in 10 mins</Text>
+                        {/* Banner Carousel */}
+                        <ScrollView
+                            horizontal
+                            pagingEnabled
+                            showsHorizontalScrollIndicator={false}
+                            style={styles.bannerScroll}
+                        >
+                            <View style={styles.bannerContainer}>
+                                <Image
+                                    source={{ uri: "https://images.unsplash.com/photo-1612927601601-6638404737ce?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Zm9vZCUyMHBob3RvfGVufDB8fDB8fHww" }}
+                                    style={styles.bannerImage}
+                                />
+                                <View style={styles.bannerOverlay}>
+                                    <Text style={styles.bannerText}>Fresh Groceries</Text>
+                                    <Text style={styles.bannerSubtext}>Delivered in 10 mins</Text>
+                                </View>
                             </View>
-                        </View>
+                            <View style={styles.bannerContainer}>
+                                <Image
+                                    source={{ uri: "https://plus.unsplash.com/premium_photo-1673590981770-307f61735af8?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NDF8fGZvb2QlMjBwaG90b3xlbnwwfHwwfHx8MA%3D%3D" }}
+                                    style={styles.bannerImage}
+                                />
+                                <View style={styles.bannerOverlay}>
+                                    <Text style={styles.bannerText}>Quality Food</Text>
+                                    <Text style={styles.bannerSubtext}>Best prices guaranteed</Text>
+                                </View>
+                            </View>
+                            <View style={styles.bannerContainer}>
+                                <Image
+                                    source={{ uri: "https://plus.unsplash.com/premium_photo-1671379041175-782d15092945?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8ZnJ1aXRzfGVufDB8fDB8fHww" }}
+                                    style={styles.bannerImage}
+                                />
+                                <View style={styles.bannerOverlay}>
+                                    <Text style={styles.bannerText}>Fresh Fruits</Text>
+                                    <Text style={styles.bannerSubtext}>Organic & healthy</Text>
+                                </View>
+                            </View>
+                            <View style={styles.bannerContainer}>
+                                <Image
+                                    source={{ uri: "https://plus.unsplash.com/premium_photo-1664640733890-17acaf0529a5?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NDV8fHZlZ2V0YWJsZXN8ZW58MHx8MHx8fDA%3D" }}
+                                    style={styles.bannerImage}
+                                />
+                                <View style={styles.bannerOverlay}>
+                                    <Text style={styles.bannerText}>Farm Fresh Vegetables</Text>
+                                    <Text style={styles.bannerSubtext}>Straight from the farm</Text>
+                                </View>
+                            </View>
+                        </ScrollView>
 
                         <View style={styles.sectionContainer}>
                             <Text style={styles.sectionTitle}>Grocery & Kitchen</Text>
@@ -424,13 +460,15 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         alignItems: "center",
         paddingHorizontal: 16,
-        paddingVertical: 12,
+        paddingTop: 20,
+        paddingBottom: 12,
         backgroundColor: "#fff",
         borderBottomWidth: 1,
         borderBottomColor: "#f0f0f0",
     },
     topHeaderTitle: {
-        fontSize: 24,
+        flex: 1,
+        fontSize: 20,
         fontWeight: "800",
         color: "#1A1A1A",
         letterSpacing: -0.5,
@@ -679,8 +717,14 @@ const styles = StyleSheet.create({
         color: "#fff",
         fontWeight: "600",
     },
-    bannerContainer: {
+    bannerScroll: {
         marginVertical: 20,
+        marginHorizontal: -20,
+        paddingLeft: 20,
+    },
+    bannerContainer: {
+        width: 350,
+        marginHorizontal: 10,
         borderRadius: 20,
         overflow: 'hidden',
         height: 180,
@@ -696,19 +740,28 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: 20,
         left: 20,
-        backgroundColor: 'rgba(255,255,255,0.9)',
-        paddingHorizontal: 15,
-        paddingVertical: 10,
-        borderRadius: 12,
+        right: 20,
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        backdropFilter: 'blur(10px)',
+        paddingHorizontal: 20,
+        paddingVertical: 15,
+        borderRadius: 16,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 5,
     },
     bannerText: {
-        fontSize: 18,
+        fontSize: 22,
         fontWeight: '800',
-        color: '#1A1A1A',
+        color: '#fff',
+        marginBottom: 4,
+        letterSpacing: 0.5,
     },
     bannerSubtext: {
-        fontSize: 12,
-        color: '#4CAF50',
+        fontSize: 14,
+        color: '#E8F5E9',
         fontWeight: '600',
     },
     toastContainer: {

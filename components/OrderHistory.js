@@ -9,6 +9,7 @@ import {
   Alert,
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Enhanced mock order data with different statuses
 const MOCK_ORDERS = [
@@ -87,7 +88,26 @@ const MOCK_ORDERS = [
 ];
 
 export default function OrderHistory({ onRepeatOrder, onBack }) {
-  const [orders] = useState(MOCK_ORDERS);
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  React.useEffect(() => {
+    loadOrders();
+  }, []);
+
+  const loadOrders = async () => {
+    try {
+      const ordersJson = await AsyncStorage.getItem('userOrders');
+      if (ordersJson) {
+        const loadedOrders = JSON.parse(ordersJson);
+        setOrders(loadedOrders);
+      }
+    } catch (error) {
+      console.log('Error loading orders:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getStatusDetails = (status) => {
     switch (status) {
