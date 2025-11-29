@@ -1,17 +1,10 @@
 import React, { useState } from "react";
-import {
-    StyleSheet,
-    Text,
-    View,
-    SectionList,
-    TextInput,
-    Image,
-    TouchableOpacity,
-    ScrollView,
-} from "react-native";
+import { StyleSheet, Text, View, SectionList, TextInput, Image, TouchableOpacity, ScrollView, } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+
 import OrderHistory from '../components/OrderHistory';
+import Heart from './Heart';
 
 import { CATEGORIES } from "../data/categories";
 import { fruitsData } from "../data/fruits";
@@ -32,7 +25,8 @@ const GROCERY_DATA = [
             ...dairyData.slice(0, 2),
         ],
     },
-    {        title: "All",
+    {
+        title: "All",
         data: [
             ...fruitsData,
             ...vegetablesData,
@@ -78,13 +72,21 @@ export default function MainPage() {
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [showOrderHistory, setShowOrderHistory] = useState(false);
     const [cartItemCount, setCartItemCount] = useState(0);
+    const [showFavorites, setShowFavorites] = useState(false);
+    const [favorites, setFavorites] = useState([]);
 
-    // Subscribe to cart changes
+    // Subscribe to cart and favorites changes
     React.useEffect(() => {
-        const unsubscribe = CartService.subscribe((cart) => {
+        const unsubscribeCart = CartService.subscribe((cart) => {
             setCartItemCount(CartService.getItemCount());
         });
-        return unsubscribe;
+        const unsubscribeFav = FavoritesService.subscribe((favs) => {
+            setFavorites(favs);
+        });
+        return () => {
+            unsubscribeCart();
+            unsubscribeFav();
+        };
     }, []);
 
     const handleRepeatOrder = (items) => {
@@ -97,6 +99,17 @@ export default function MainPage() {
             <OrderHistory
                 onRepeatOrder={handleRepeatOrder}
                 onBack={() => setShowOrderHistory(false)}
+            />
+        );
+    }
+
+    if (showFavorites) {
+        return (
+            <Heart
+                favorites={favorites}
+                onRemove={(item) => FavoritesService.removeItem(item)}
+                onAddToCart={(item) => CartService.addItem(item)}
+                onBack={() => setShowFavorites(false)}
             />
         );
     }
@@ -117,30 +130,42 @@ export default function MainPage() {
         return { ...section, data: filteredItems };
     }).filter((section) => section !== null);
 
-    const renderItem = (item) => (
-        <View key={item.name} style={styles.itemCard}>
-            <View style={styles.cardHeader}>
-                <Text style={styles.itemName} numberOfLines={2}>{item.name}</Text>
-                <TouchableOpacity>
-                    <Ionicons name="heart-outline" size={20} color="#FF6B6B" />
-                </TouchableOpacity>
-            </View>
-
-            <View style={styles.itemImageContainer}>
-                <Image source={{ uri: item.image }} style={styles.itemImage} />
-            </View>
-
-            <View style={styles.cardFooter}>
-                <View>
-                    <Text style={styles.itemPrice}>{item.price}</Text>
-                    <Text style={styles.itemWeight}>for {item.weight}</Text>
+    const renderItem = (item) => {
+        const isFavorite = favorites.some(fav => fav.name === item.name);
+        return (
+            <View key={item.name} style={styles.itemCard}>
+                <View style={styles.cardHeader}>
+                    {item.discount && (
+                        <View style={styles.discountBadge}>
+                            <Text style={styles.discountText}>{item.discount}</Text>
+                        </View>
+                    )}
+                    <View style={{ flex: 1 }} />
+                    <TouchableOpacity onPress={() => FavoritesService.toggleFavorite(item)}>
+                        <Ionicons
+                            name={isFavorite ? "heart" : "heart-outline"}
+                            size={20}
+                            color="#FF6B6B"
+                        />
+                    </TouchableOpacity>
                 </View>
-                <TouchableOpacity style={styles.addButton} onPress={() => CartService.addItem(item)}>
-                    <Ionicons name="add" size={24} color="#4CAF50" />
-                </TouchableOpacity>
+
+                <View style={styles.itemImageContainer}>
+                    <Image source={{ uri: item.image }} style={styles.itemImage} />
+                </View>
+
+                <View style={styles.cardFooter}>
+                    <View>
+                        <Text style={styles.itemPrice}>{item.price}</Text>
+                        <Text style={styles.itemWeight}>for {item.weight}</Text>
+                    </View>
+                    <TouchableOpacity style={styles.addButton} onPress={() => CartService.addItem(item)}>
+                        <Ionicons name="add" size={24} color="#4CAF50" />
+                    </TouchableOpacity>
+                </View>
             </View>
-        </View>
-    );
+        );
+    };
 
     const BottomNavBar = () => (
         <View style={styles.bottomNavContainer}>
@@ -157,11 +182,11 @@ export default function MainPage() {
             <TouchableOpacity style={styles.navItem}>
                 <Ionicons name="person-outline" size={24} color="#1A1A1A" />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.navItem}>
-                <Ionicons name="home" size={24} color="#1A1A1A" />
+            <TouchableOpacity style={styles.navItem} onPress={() => setShowFavorites(false)}>
+                <Ionicons name="home" size={24} color={!showFavorites ? "#4CAF50" : "#1A1A1A"} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.navItem}>
-                <Ionicons name="heart-outline" size={24} color="#1A1A1A" />
+            <TouchableOpacity style={styles.navItem} onPress={() => setShowFavorites(true)}>
+                <Ionicons name={showFavorites ? "heart" : "heart-outline"} size={24} color={showFavorites ? "#FF6B6B" : "#1A1A1A"} />
             </TouchableOpacity>
             <TouchableOpacity style={styles.navItem}>
                 <Ionicons name="menu-outline" size={24} color="#1A1A1A" />
@@ -645,3 +670,46 @@ class CartServiceImpl {
 }
 
 export const CartService = new CartServiceImpl();
+
+// Favorites Service
+class FavoritesServiceImpl {
+    constructor() {
+        this.favorites = [];
+        this.listeners = [];
+    }
+
+    toggleFavorite(item) {
+        const index = this.favorites.findIndex(fav => fav.name === item.name);
+        if (index > -1) {
+            this.favorites.splice(index, 1);
+        } else {
+            this.favorites.push(item);
+        }
+        this.notifyListeners();
+    }
+
+    removeItem(item) {
+        const index = this.favorites.findIndex(fav => fav.name === item.name);
+        if (index > -1) {
+            this.favorites.splice(index, 1);
+            this.notifyListeners();
+        }
+    }
+
+    getFavorites() {
+        return this.favorites;
+    }
+
+    subscribe(listener) {
+        this.listeners.push(listener);
+        return () => {
+            this.listeners = this.listeners.filter(l => l !== listener);
+        };
+    }
+
+    notifyListeners() {
+        this.listeners.forEach(listener => listener(this.favorites));
+    }
+}
+
+export const FavoritesService = new FavoritesServiceImpl();
