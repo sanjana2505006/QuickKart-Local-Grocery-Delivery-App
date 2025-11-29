@@ -13,7 +13,7 @@ function App() {
       case "login":
         return <Login onCreateAccount={() => setCurrentScreen("main")} />;
       case "main":
-        return <MainPage />;
+        return <MainPage onLogout={() => setCurrentScreen("login")} />;
       default:
         return <HomePage onGetStarted={() => setCurrentScreen("login")} />;
     }

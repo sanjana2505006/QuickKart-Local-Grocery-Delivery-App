@@ -9,6 +9,7 @@ import {
   Alert,
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Enhanced mock order data with different statuses
 const MOCK_ORDERS = [
@@ -22,19 +23,22 @@ const MOCK_ORDERS = [
         name: "Fresh Apples",
         price: "₹12.00",
         quantity: 1,
-        image: "https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=400",
+        image:
+          "https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=400",
       },
       {
         name: "Organic Milk",
         price: "₹6.50",
         quantity: 2,
-        image: "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400",
+        image:
+          "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400",
       },
       {
         name: "Brown Bread",
         price: "₹4.50",
         quantity: 1,
-        image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400",
+        image:
+          "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400",
       },
     ],
     deliveryTime: "8 mins",
@@ -87,7 +91,26 @@ const MOCK_ORDERS = [
 ];
 
 export default function OrderHistory({ onRepeatOrder, onBack }) {
-  const [orders] = useState(MOCK_ORDERS);
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  React.useEffect(() => {
+    loadOrders();
+  }, []);
+
+  const loadOrders = async () => {
+    try {
+      const ordersJson = await AsyncStorage.getItem("userOrders");
+      if (ordersJson) {
+        const loadedOrders = JSON.parse(ordersJson);
+        setOrders(loadedOrders);
+      }
+    } catch (error) {
+      console.log("Error loading orders:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getStatusDetails = (status) => {
     switch (status) {
@@ -95,31 +118,31 @@ export default function OrderHistory({ onRepeatOrder, onBack }) {
         return {
           bg: "#E8F5E9",
           text: "#2E7D32",
-          icon: "check-circle"
+          icon: "check-circle",
         };
       case "Cancelled":
         return {
           bg: "#FFEBEE",
           text: "#C62828",
-          icon: "cancel"
+          icon: "cancel",
         };
       case "Processing":
         return {
           bg: "#FFF3E0",
           text: "#EF6C00",
-          icon: "schedule"
+          icon: "schedule",
         };
       case "Shipped":
         return {
           bg: "#E3F2FD",
           text: "#1565C0",
-          icon: "local-shipping"
+          icon: "local-shipping",
         };
       default:
         return {
           bg: "#F5F5F5",
           text: "#616161",
-          icon: "help"
+          icon: "help",
         };
     }
   };
@@ -153,14 +176,14 @@ export default function OrderHistory({ onRepeatOrder, onBack }) {
   };
 
   const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'short', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString('en-IN', options);
+    const options = { year: "numeric", month: "short", day: "numeric" };
+    return new Date(dateString).toLocaleDateString("en-IN", options);
   };
 
   const getOrderSummary = (items) => {
     const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
-    const itemNames = items.map(item => item.name).join(", ");
-    return `${totalItems} item${totalItems > 1 ? 's' : ''}: ${itemNames}`;
+    const itemNames = items.map((item) => item.name).join(", ");
+    return `${totalItems} item${totalItems > 1 ? "s" : ""}: ${itemNames}`;
   };
 
   return (
@@ -172,12 +195,17 @@ export default function OrderHistory({ onRepeatOrder, onBack }) {
         </TouchableOpacity>
         <View style={styles.headerTextContainer}>
           <Text style={styles.headerTitle}>Order History</Text>
-          <Text style={styles.headerSubtitle}>{orders.length} orders placed</Text>
+          <Text style={styles.headerSubtitle}>
+            {orders.length} orders placed
+          </Text>
         </View>
       </View>
 
       {/* Orders List */}
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+      >
         {orders.length === 0 ? (
           <View style={styles.emptyState}>
             <Icon name="receipt-long" size={64} color="#CCCCCC" />
@@ -199,14 +227,21 @@ export default function OrderHistory({ onRepeatOrder, onBack }) {
                       {formatDate(order.date)}
                     </Text>
                   </View>
-                  <View style={[styles.statusBadge, { backgroundColor: statusDetails.bg }]}>
+                  <View
+                    style={[
+                      styles.statusBadge,
+                      { backgroundColor: statusDetails.bg },
+                    ]}
+                  >
                     <Icon
                       name={statusDetails.icon}
                       size={14}
                       color={statusDetails.text}
                       style={styles.statusIcon}
                     />
-                    <Text style={[styles.statusText, { color: statusDetails.text }]}>
+                    <Text
+                      style={[styles.statusText, { color: statusDetails.text }]}
+                    >
                       {order.status}
                     </Text>
                   </View>
@@ -239,7 +274,12 @@ export default function OrderHistory({ onRepeatOrder, onBack }) {
                   <View style={styles.actionButtons}>
                     <TouchableOpacity
                       style={styles.detailsButton}
-                      onPress={() => Alert.alert("Order Details", `View details for order #${order.id}`)}
+                      onPress={() =>
+                        Alert.alert(
+                          "Order Details",
+                          `View details for order #${order.id}`
+                        )
+                      }
                     >
                       <Text style={styles.detailsText}>Details</Text>
                     </TouchableOpacity>
@@ -412,8 +452,8 @@ const styles = StyleSheet.create({
     color: "#1A1A1A",
   },
   actionButtons: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
   },
   detailsButton: {
