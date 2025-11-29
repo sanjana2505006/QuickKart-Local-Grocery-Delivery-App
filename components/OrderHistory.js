@@ -10,7 +10,7 @@ import {
   RefreshControl,
   TextInput,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialIcons";
+import { MaterialIcons } from '@expo/vector-icons';
 
 export default function OrderHistory({ orderService, onRepeatOrder, onBack }) {
   const [orders, setOrders] = useState([]);
@@ -154,7 +154,7 @@ export default function OrderHistory({ orderService, onRepeatOrder, onBack }) {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={onBack}>
-          <Icon name="arrow-back" size={24} color="#1A1A1A" />
+          <MaterialIcons name="arrow-back" size={24} color="#1A1A1A" />
         </TouchableOpacity>
         <View style={styles.headerTextContainer}>
           <Text style={styles.headerTitle}>Order History</Text>
@@ -166,7 +166,7 @@ export default function OrderHistory({ orderService, onRepeatOrder, onBack }) {
       {/* Search and Filter */}
       <View style={styles.searchContainer}>
         <View style={styles.searchBar}>
-          <Icon name="search" size={20} color="#666" />
+          <MaterialIcons name="search" size={20} color="#666" />
           <TextInput
             style={styles.searchInput}
             placeholder="Search orders or items..."
@@ -200,7 +200,7 @@ export default function OrderHistory({ orderService, onRepeatOrder, onBack }) {
         {filteredOrders.length === 0 ? (
           searchQuery || statusFilter !== "All" ? (
             <View style={styles.emptyState}>
-              <Icon name="search-off" size={64} color="#CCCCCC" />
+              <MaterialIcons name="search-off" size={64} color="#CCCCCC" />
               <Text style={styles.emptyStateTitle}>No orders found</Text>
               <Text style={styles.emptyStateSubtitle}>
                 Try adjusting your search or filter
@@ -217,7 +217,7 @@ export default function OrderHistory({ orderService, onRepeatOrder, onBack }) {
             </View>
           ) : (
             <View style={styles.emptyState}>
-              <Icon name="receipt-long" size={64} color="#CCCCCC" />
+              <MaterialIcons name="receipt-long" size={64} color="#CCCCCC" />
               <Text style={styles.emptyStateTitle}>No orders yet</Text>
               <Text style={styles.emptyStateSubtitle}>
                 Your order history will appear here
@@ -238,7 +238,7 @@ export default function OrderHistory({ orderService, onRepeatOrder, onBack }) {
                     </Text>
                   </View>
                   <View style={[styles.statusBadge, { backgroundColor: statusDetails.bg }]}>
-                    <Icon
+                    <MaterialIcons
                       name={statusDetails.icon}
                       size={14}
                       color={statusDetails.text}
@@ -259,20 +259,20 @@ export default function OrderHistory({ orderService, onRepeatOrder, onBack }) {
                   </Text>
                   <View style={styles.orderMeta}>
                     <View style={styles.deliveryInfo}>
-                      <Icon name="location-on" size={14} color="#666" />
+                      <MaterialIcons name="location-on" size={14} color="#666" />
                       <Text style={styles.deliveryText} numberOfLines={1}>
                         {order.deliveryAddress}
                       </Text>
                     </View>
                     {order.paymentMethod && (
                       <View style={styles.paymentInfo}>
-                        <Icon name="payment" size={14} color="#666" />
+                        <MaterialIcons name="payment" size={14} color="#666" />
                         <Text style={styles.paymentText}>{order.paymentMethod}</Text>
                       </View>
                     )}
                     {order.deliveryTime && order.deliveryTime !== "Calculating..." && (
                       <View style={styles.timeInfo}>
-                        <Icon name="schedule" size={14} color="#4CAF50" />
+                        <MaterialIcons name="schedule" size={14} color="#4CAF50" />
                         <Text style={styles.timeText}>Delivered in {order.deliveryTime}</Text>
                       </View>
                     )}
@@ -301,7 +301,7 @@ export default function OrderHistory({ orderService, onRepeatOrder, onBack }) {
                         style={styles.repeatButton}
                         onPress={() => handleRepeatOrder(order)}
                       >
-                        <Icon name="refresh" size={16} color="#FFF" />
+                        <MaterialIcons name="refresh" size={16} color="#FFF" />
                         <Text style={styles.repeatText}>Repeat</Text>
                       </TouchableOpacity>
                     )}
