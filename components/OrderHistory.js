@@ -38,7 +38,6 @@ export default function OrderHistory({ orderService, onRepeatOrder, onBack }) {
 
   const onRefresh = () => {
     setRefreshing(true);
-    // Simulate refresh - in real app, this would fetch from API
     setTimeout(() => {
       if (orderService) {
         const refreshedOrders = orderService.getOrders();
@@ -119,7 +118,6 @@ export default function OrderHistory({ orderService, onRepeatOrder, onBack }) {
       return;
     }
 
-    // Enhanced repeat order with item selection
     Alert.alert(
       "Repeat Order",
       `Add ${order.items.length} items from order #${order.id} to cart?\n\nItems: ${order.items.map(item => `${item.name} (${item.quantity})`).join(', ')}`,
@@ -151,7 +149,6 @@ export default function OrderHistory({ orderService, onRepeatOrder, onBack }) {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={onBack}>
           <MaterialIcons name="arrow-back" size={24} color="#1A1A1A" />
@@ -162,8 +159,7 @@ export default function OrderHistory({ orderService, onRepeatOrder, onBack }) {
         </View>
       </View>
 
-      {/* Orders List */}
-      {/* Search and Filter */}
+    
       <View style={styles.searchContainer}>
         <View style={styles.searchBar}>
           <MaterialIcons name="search" size={20} color="#666" />
