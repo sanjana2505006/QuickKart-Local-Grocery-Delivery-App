@@ -8,7 +8,7 @@ import {
   Image,
   Alert,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialIcons";
+import { MaterialIcons as Icon } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Enhanced mock order data with different statuses
@@ -90,6 +90,7 @@ const MOCK_ORDERS = [
 export default function OrderHistory({ onRepeatOrder, onBack }) {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   React.useEffect(() => {
     loadOrders();
@@ -139,7 +140,7 @@ export default function OrderHistory({ onRepeatOrder, onBack }) {
         return {
           bg: "#F5F5F5",
           text: "#616161",
-          icon: "help"
+          icon: "shopping-basket"
         };
     }
   };
@@ -183,6 +184,71 @@ export default function OrderHistory({ onRepeatOrder, onBack }) {
     return `${totalItems} item${totalItems > 1 ? 's' : ''}: ${itemNames}`;
   };
 
+  const renderOrderDetails = () => {
+    if (!selectedOrder) return null;
+
+    return (
+      <View style={styles.detailsOverlay}>
+        <View style={styles.detailsContainer}>
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={() => setSelectedOrder(null)}
+          >
+            <Icon name="close" size={24} color="#1A1A1A" />
+          </TouchableOpacity>
+
+          <Text style={styles.detailsMainTitle}>Order Details</Text>
+          <Text style={styles.detailsOrderId}>Order #{selectedOrder.id}</Text>
+
+          <ScrollView style={styles.detailsScroll} showsVerticalScrollIndicator={false}>
+            <Text style={styles.detailsSectionTitle}>Items</Text>
+            {selectedOrder.items.map((item, index) => (
+              <View key={index} style={styles.detailsItem}>
+                <Image source={{ uri: item.image }} style={styles.detailsItemImage} />
+                <View style={styles.detailsItemInfo}>
+                  <Text style={styles.detailsItemName}>{item.name}</Text>
+                  <Text style={styles.detailsItemWeight}>{item.weight || '1 unit'}</Text>
+                </View>
+                <View style={styles.detailsItemPriceContainer}>
+                  <Text style={styles.detailsItemQty}>x{item.quantity}</Text>
+                  <Text style={styles.detailsItemPrice}>{item.price}</Text>
+                </View>
+              </View>
+            ))}
+
+            <View style={styles.detailsDivider} />
+
+            <Text style={styles.detailsSectionTitle}>Delivery Address</Text>
+            <View style={styles.detailsAddressContainer}>
+              <Icon name="location-on" size={18} color="#4CAF50" />
+              <Text style={styles.detailsAddressText}>{selectedOrder.deliveryAddress}</Text>
+            </View>
+
+            <View style={styles.detailsDivider} />
+
+            <View style={styles.detailsTotalRow}>
+              <Text style={styles.detailsTotalLabel}>Total Amount</Text>
+              <Text style={styles.detailsTotalValue}>{selectedOrder.total}</Text>
+            </View>
+          </ScrollView>
+
+          {selectedOrder.status === "Delivered" && (
+            <TouchableOpacity
+              style={styles.detailsRepeatButton}
+              onPress={() => {
+                handleRepeatOrder(selectedOrder);
+                setSelectedOrder(null);
+              }}
+            >
+              <Icon name="refresh" size={20} color="#FFF" />
+              <Text style={styles.detailsRepeatText}>Order Again</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
+    );
+  };
+
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -200,7 +266,7 @@ export default function OrderHistory({ onRepeatOrder, onBack }) {
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {orders.length === 0 ? (
           <View style={styles.emptyState}>
-            <Icon name="receipt-long" size={64} color="#CCCCCC" />
+            <Icon name="shopping-bag" size={64} color="#CCCCCC" />
             <Text style={styles.emptyStateTitle}>No orders yet</Text>
             <Text style={styles.emptyStateSubtitle}>
               Your order history will appear here
@@ -259,7 +325,7 @@ export default function OrderHistory({ onRepeatOrder, onBack }) {
                   <View style={styles.actionButtons}>
                     <TouchableOpacity
                       style={styles.detailsButton}
-                      onPress={() => Alert.alert("Order Details", `View details for order #${order.id}`)}
+                      onPress={() => setSelectedOrder(order)}
                     >
                       <Text style={styles.detailsText}>Details</Text>
                     </TouchableOpacity>
@@ -281,6 +347,7 @@ export default function OrderHistory({ onRepeatOrder, onBack }) {
         )}
         <View style={styles.bottomSpacer} />
       </ScrollView>
+      {renderOrderDetails()}
     </View>
   );
 }
@@ -470,5 +537,141 @@ const styles = StyleSheet.create({
   },
   bottomSpacer: {
     height: 20,
+  },
+  detailsOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+    zIndex: 1000,
+  },
+  detailsContainer: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    padding: 24,
+    height: '80%',
+  },
+  closeButton: {
+    alignSelf: 'flex-end',
+    padding: 8,
+    backgroundColor: '#F5F5F5',
+    borderRadius: 12,
+  },
+  detailsMainTitle: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#1A1A1A',
+    marginTop: 8,
+  },
+  detailsOrderId: {
+    fontSize: 14,
+    color: '#888',
+    marginBottom: 20,
+  },
+  detailsScroll: {
+    flex: 1,
+  },
+  detailsSectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1A1A1A',
+    marginBottom: 16,
+    marginTop: 8,
+  },
+  detailsItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    backgroundColor: '#F8F9FA',
+    padding: 12,
+    borderRadius: 16,
+  },
+  detailsItemImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 12,
+    backgroundColor: '#fff',
+  },
+  detailsItemInfo: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  detailsItemName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1A1A1A',
+  },
+  detailsItemWeight: {
+    fontSize: 12,
+    color: '#888',
+    marginTop: 2,
+  },
+  detailsItemPriceContainer: {
+    alignItems: 'flex-end',
+  },
+  detailsItemQty: {
+    fontSize: 12,
+    color: '#888',
+  },
+  detailsItemPrice: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#4CAF50',
+    marginTop: 2,
+  },
+  detailsDivider: {
+    height: 1,
+    backgroundColor: '#EEE',
+    marginVertical: 20,
+  },
+  detailsAddressContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F0F9F4',
+    padding: 16,
+    borderRadius: 16,
+  },
+  detailsAddressText: {
+    fontSize: 14,
+    color: '#1A1A1A',
+    marginLeft: 8,
+    flex: 1,
+    lineHeight: 20,
+  },
+  detailsTotalRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 8,
+    marginBottom: 40,
+  },
+  detailsTotalLabel: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#888',
+  },
+  detailsTotalValue: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#1A1A1A',
+  },
+  detailsRepeatButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#1A1A1A',
+    paddingVertical: 18,
+    borderRadius: 20,
+    marginTop: 10,
+  },
+  detailsRepeatText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: '700',
+    marginLeft: 10,
   },
 });

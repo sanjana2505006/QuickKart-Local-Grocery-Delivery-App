@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, TouchableOpacity, ScrollView, StyleSheet, Alert } from 'react-native';
+import { View, Text, Image, TouchableOpacity, ScrollView, StyleSheet, Alert, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -7,14 +7,27 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export default function Cart({ cartService, onBack }) {
     const [cartItems, setCartItems] = useState(cartService.getCart());
     const [total, setTotal] = useState(cartService.getTotal());
+    const [address, setAddress] = useState('123 Main St, Apartment 4B');
 
     useEffect(() => {
+        loadAddress();
         const unsubscribe = cartService.subscribe((items) => {
             setCartItems(items);
             setTotal(cartService.getTotal());
         });
         return unsubscribe;
     }, [cartService]);
+
+    const loadAddress = async () => {
+        try {
+            const savedAddress = await AsyncStorage.getItem('userAddress');
+            if (savedAddress) {
+                setAddress(savedAddress);
+            }
+        } catch (error) {
+            console.log('Error loading address in Cart:', error);
+        }
+    };
 
     const handleCheckout = async () => {
         try {
@@ -23,7 +36,7 @@ export default function Cart({ cartService, onBack }) {
                 id: `ORD${Date.now()}`,
                 date: new Date().toISOString().split('T')[0],
                 status: 'Processing',
-                total: `$${total.toFixed(2)}`,
+                total: `₹${total.toFixed(2)}`,
                 items: cartItems.map(item => ({
                     name: item.name,
                     price: item.price,
@@ -32,7 +45,7 @@ export default function Cart({ cartService, onBack }) {
                     weight: item.weight
                 })),
                 deliveryTime: '15 mins',
-                deliveryAddress: '123 Main St, Apartment 4B'
+                deliveryAddress: address
             };
 
             // Get existing orders
@@ -129,9 +142,25 @@ export default function Cart({ cartService, onBack }) {
             </ScrollView>
 
             <View style={styles.footer}>
+                <View style={styles.addressSection}>
+                    <View style={styles.addressHeader}>
+                        <Ionicons name="location-outline" size={20} color="#4CAF50" />
+                        <Text style={styles.addressTitle}>Delivery Address</Text>
+                    </View>
+                    <View style={styles.addressInputContainer}>
+                        <TextInput
+                            style={styles.addressInput}
+                            value={address}
+                            onChangeText={setAddress}
+                            placeholder="Enter delivery address"
+                            multiline
+                        />
+                    </View>
+                </View>
+
                 <View style={styles.totalRow}>
                     <Text style={styles.totalLabel}>Total</Text>
-                    <Text style={styles.totalAmount}>${total.toFixed(2)}</Text>
+                    <Text style={styles.totalAmount}>₹{total.toFixed(2)}</Text>
                 </View>
                 <TouchableOpacity style={styles.checkoutButton} onPress={handleCheckout}>
                     <Text style={styles.checkoutButtonText}>Checkout</Text>
@@ -337,5 +366,38 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 18,
         fontWeight: 'bold',
+    },
+    addressSection: {
+        marginBottom: 20,
+        backgroundColor: '#f8f9fa',
+        borderRadius: 16,
+        padding: 15,
+        borderWidth: 1,
+        borderColor: '#e0e0e0',
+    },
+    addressHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    addressTitle: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: '#1A1A1A',
+        marginLeft: 8,
+    },
+    addressInputContainer: {
+        backgroundColor: '#fff',
+        borderRadius: 12,
+        paddingHorizontal: 10,
+        paddingVertical: 8,
+        borderWidth: 1,
+        borderColor: '#eee',
+    },
+    addressInput: {
+        fontSize: 14,
+        color: '#444',
+        minHeight: 40,
+        textAlignVertical: 'top',
     },
 });

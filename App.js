@@ -1,6 +1,7 @@
 import { registerRootComponent } from "expo";
 import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import HomePage from "./ComPages/HomePage";
 import Login from "./ComPages/Login";
 import MainPage from "./ComPages/MainPage";
@@ -20,10 +21,10 @@ function App() {
   };
 
   return (
-    <>
+    <SafeAreaProvider>
       {renderScreen()}
       <StatusBar style="auto" />
-    </>
+    </SafeAreaProvider>
   );
 }
 
