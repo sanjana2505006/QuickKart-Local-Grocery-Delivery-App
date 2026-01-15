@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function Cart({ cartService, onBack }) {
+export default function Cart({ cartService, orderService, onBack, onCheckoutSuccess }) {
     const [cartItems, setCartItems] = useState(cartService.getCart());
     const [total, setTotal] = useState(cartService.getTotal());
     const [address, setAddress] = useState('123 Main St, Apartment 4B');

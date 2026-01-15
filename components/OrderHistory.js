@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,85 +7,18 @@ import {
   StyleSheet,
   Image,
   Alert,
+  RefreshControl,
+  TextInput,
 } from "react-native";
 import { MaterialIcons as Icon } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Enhanced mock order data with different statuses
-const MOCK_ORDERS = [
-  {
-    id: "ORD001",
-    date: "2024-01-15",
-    status: "Delivered",
-    total: "₹48.50",
-    items: [
-      {
-        name: "Fresh Apples",
-        price: "₹12.00",
-        quantity: 1,
-        image: "https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=400",
-      },
-      {
-        name: "Organic Milk",
-        price: "₹6.50",
-        quantity: 2,
-        image: "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400",
-      },
-      {
-        name: "Brown Bread",
-        price: "₹4.50",
-        quantity: 1,
-        image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400",
-      },
-    ],
-    deliveryTime: "8 mins",
-    deliveryAddress: "123 Main St, Apartment 4B, Mumbai",
-  },
-  {
-    id: "ORD002",
-    date: "2024-01-12",
-    status: "Cancelled",
-    total: "₹32.00",
-    items: [
-      {
-        name: "Bananas",
-        price: "₹6.00",
-        quantity: 2,
-        image: "https://placehold.co/150/FFD93D/FFFFFF?text=Banana",
-      },
-      {
-        name: "Carrots",
-        price: "₹6.00",
-        quantity: 1,
-        image: "https://placehold.co/150/E17055/FFFFFF?text=Carrot",
-      },
-    ],
-    deliveryTime: "12 mins",
-    deliveryAddress: "123 Main St, Apartment 4B, Mumbai",
-  },
-  {
-    id: "ORD003",
-    date: "2024-01-10",
-    status: "Processing",
-    total: "₹75.25",
-    items: [
-      {
-        name: "Chicken Breast",
-        price: "₹25.00",
-        quantity: 1,
-        image: "https://placehold.co/150/FF6B6B/FFFFFF?text=Chicken",
-      },
-      {
-        name: "Basmati Rice",
-        price: "₹15.25",
-        quantity: 2,
-        image: "https://placehold.co/150/4ECDC4/FFFFFF?text=Rice",
-      },
-    ],
-    deliveryTime: "15 mins",
-    deliveryAddress: "123 Main St, Apartment 4B, Mumbai",
-  },
-];
+export default function OrderHistory({ orderService, onRepeatOrder, onBack }) {
+  const [orders, setOrders] = useState([]);
+  const [filteredOrders, setFilteredOrders] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
 
 export default function OrderHistory({ onRepeatOrder, onBack }) {
   const [orders, setOrders] = useState([]);
@@ -125,15 +58,23 @@ export default function OrderHistory({ onRepeatOrder, onBack }) {
           icon: "cancel"
         };
       case "Processing":
+      case "Pending":
         return {
           bg: "#FFF3E0",
           text: "#EF6C00",
           icon: "schedule"
         };
-      case "Shipped":
+      case "Accepted":
         return {
           bg: "#E3F2FD",
           text: "#1565C0",
+          icon: "thumb-up"
+        };
+      case "Out for Delivery":
+      case "Shipped":
+        return {
+          bg: "#F3E5F5",
+          text: "#7B1FA2",
           icon: "local-shipping"
         };
       default:
@@ -157,11 +98,11 @@ export default function OrderHistory({ onRepeatOrder, onBack }) {
 
     Alert.alert(
       "Repeat Order",
-      `Add ${order.items.length} items from order #${order.id} to cart?`,
+      `Add ${order.items.length} items from order #${order.id} to cart?\n\nItems: ${order.items.map(item => `${item.name} (${item.quantity})`).join(', ')}`,
       [
         { text: "Cancel", style: "cancel" },
         {
-          text: "Add to Cart",
+          text: "Add All Items",
           onPress: () => {
             if (onRepeatOrder) {
               onRepeatOrder(order.items);
@@ -251,10 +192,9 @@ export default function OrderHistory({ onRepeatOrder, onBack }) {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={onBack}>
-          <Icon name="arrow-back" size={24} color="#1A1A1A" />
+          <MaterialIcons name="arrow-back" size={24} color="#1A1A1A" />
         </TouchableOpacity>
         <View style={styles.headerTextContainer}>
           <Text style={styles.headerTitle}>Order History</Text>
@@ -273,7 +213,7 @@ export default function OrderHistory({ onRepeatOrder, onBack }) {
             </Text>
           </View>
         ) : (
-          orders.map((order) => {
+          filteredOrders.map((order) => {
             const statusDetails = getStatusDetails(order.status);
             return (
               <View key={order.id} style={styles.orderCard}>
@@ -286,7 +226,7 @@ export default function OrderHistory({ onRepeatOrder, onBack }) {
                     </Text>
                   </View>
                   <View style={[styles.statusBadge, { backgroundColor: statusDetails.bg }]}>
-                    <Icon
+                    <MaterialIcons
                       name={statusDetails.icon}
                       size={14}
                       color={statusDetails.text}
@@ -305,11 +245,25 @@ export default function OrderHistory({ onRepeatOrder, onBack }) {
                   <Text style={styles.itemsSummary} numberOfLines={2}>
                     {getOrderSummary(order.items)}
                   </Text>
-                  <View style={styles.deliveryInfo}>
-                    <Icon name="location-on" size={14} color="#666" />
-                    <Text style={styles.deliveryText} numberOfLines={1}>
-                      {order.deliveryAddress}
-                    </Text>
+                  <View style={styles.orderMeta}>
+                    <View style={styles.deliveryInfo}>
+                      <MaterialIcons name="location-on" size={14} color="#666" />
+                      <Text style={styles.deliveryText} numberOfLines={1}>
+                        {order.deliveryAddress}
+                      </Text>
+                    </View>
+                    {order.paymentMethod && (
+                      <View style={styles.paymentInfo}>
+                        <MaterialIcons name="payment" size={14} color="#666" />
+                        <Text style={styles.paymentText}>{order.paymentMethod}</Text>
+                      </View>
+                    )}
+                    {order.deliveryTime && order.deliveryTime !== "Calculating..." && (
+                      <View style={styles.timeInfo}>
+                        <MaterialIcons name="schedule" size={14} color="#4CAF50" />
+                        <Text style={styles.timeText}>Delivered in {order.deliveryTime}</Text>
+                      </View>
+                    )}
                   </View>
                 </View>
 
@@ -335,7 +289,7 @@ export default function OrderHistory({ onRepeatOrder, onBack }) {
                         style={styles.repeatButton}
                         onPress={() => handleRepeatOrder(order)}
                       >
-                        <Icon name="refresh" size={16} color="#FFF" />
+                        <MaterialIcons name="refresh" size={16} color="#FFF" />
                         <Text style={styles.repeatText}>Repeat</Text>
                       </TouchableOpacity>
                     )}
@@ -386,6 +340,60 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#666",
     marginTop: 2,
+  },
+  searchContainer: {
+    backgroundColor: "#fff",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F0F0F0",
+  },
+  searchBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F8F9FA",
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    marginBottom: 12,
+  },
+  searchInput: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingLeft: 8,
+    fontSize: 16,
+    color: "#1A1A1A",
+  },
+  filterContainer: {
+    flexDirection: "row",
+  },
+  filterChip: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: "#F0F0F0",
+    marginRight: 8,
+  },
+  activeFilterChip: {
+    backgroundColor: "#4CAF50",
+  },
+  filterText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#666",
+  },
+  activeFilterText: {
+    color: "#fff",
+  },
+  clearFiltersButton: {
+    backgroundColor: "#4CAF50",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+    marginTop: 16,
+  },
+  clearFiltersText: {
+    color: "#fff",
+    fontWeight: "600",
   },
   scrollView: {
     flex: 1,
@@ -463,6 +471,9 @@ const styles = StyleSheet.create({
   orderSummary: {
     marginVertical: 4,
   },
+  orderMeta: {
+    gap: 6,
+  },
   itemsSummary: {
     fontSize: 14,
     color: "#666",
@@ -473,11 +484,30 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
+  paymentInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  timeInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   deliveryText: {
     fontSize: 13,
     color: "#666",
     marginLeft: 6,
     flex: 1,
+  },
+  paymentText: {
+    fontSize: 13,
+    color: "#666",
+    marginLeft: 6,
+  },
+  timeText: {
+    fontSize: 13,
+    color: "#4CAF50",
+    marginLeft: 6,
+    fontWeight: "600",
   },
   orderFooter: {
     flexDirection: "row",

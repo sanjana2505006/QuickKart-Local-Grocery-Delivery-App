@@ -172,6 +172,7 @@ export default function MainPage() {
     if (activeTab === "Orders") {
         return (
             <OrderHistory
+                orderService={OrderService}
                 onRepeatOrder={handleRepeatOrder}
                 onBack={() => setActiveTab("Home")}
             />
@@ -193,7 +194,12 @@ export default function MainPage() {
         return (
             <Cart
                 cartService={CartService}
+                orderService={OrderService}
                 onBack={() => setActiveTab("Home")}
+                onCheckoutSuccess={() => {
+                    setActiveTab("Home");
+                    setShowOrderHistory(true);
+                }}
             />
         );
     }
@@ -1115,3 +1121,85 @@ class FavoritesServiceImpl {
 }
 
 export const FavoritesService = new FavoritesServiceImpl();
+
+// Order Service
+class OrderServiceImpl {
+    constructor() {
+        this.orders = [
+            {
+                id: "ORD001",
+                date: "2024-01-15",
+                status: "Delivered",
+                total: "₹48.50",
+                items: [
+                    { name: "Fresh Apples", price: "₹12.00", quantity: 1, image: "https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=400" },
+                    { name: "Organic Milk", price: "₹6.50", quantity: 2, image: "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400" }
+                ],
+                deliveryTime: "8 mins",
+                deliveryAddress: "123 Main St, Apartment 4B, Mumbai",
+            }
+        ];
+        this.listeners = [];
+    }
+
+    placeOrder(items, total, address = "123 Main St, Apartment 4B, Mumbai", payment = "Cash on Delivery") {
+        const newOrder = {
+            id: `ORD${Math.floor(Math.random() * 10000)}`,
+            date: new Date().toISOString().split('T')[0],
+            status: "Pending",
+            total: `₹${total}`,
+            items: [...items],
+            deliveryTime: "Calculating...",
+            deliveryAddress: address,
+            paymentMethod: payment
+        };
+
+        this.orders.unshift(newOrder);
+        this.notifyListeners();
+        this.simulateOrderProgress(newOrder.id);
+        return newOrder;
+    }
+
+    simulateOrderProgress(orderId) {
+        const stages = ["Accepted", "Out for Delivery", "Delivered"];
+        let currentStage = 0;
+
+        const interval = setInterval(() => {
+            if (currentStage >= stages.length) {
+                clearInterval(interval);
+                return;
+            }
+
+            this.updateStatus(orderId, stages[currentStage]);
+            currentStage++;
+        }, 5000); // Update every 5 seconds for demo
+    }
+
+    updateStatus(orderId, status) {
+        const order = this.orders.find(o => o.id === orderId);
+        if (order) {
+            order.status = status;
+            if (status === "Delivered") {
+                order.deliveryTime = "Just now";
+            }
+            this.notifyListeners();
+        }
+    }
+
+    getOrders() {
+        return this.orders;
+    }
+
+    subscribe(listener) {
+        this.listeners.push(listener);
+        return () => {
+            this.listeners = this.listeners.filter(l => l !== listener);
+        };
+    }
+
+    notifyListeners() {
+        this.listeners.forEach(listener => listener([...this.orders]));
+    }
+}
+
+export const OrderService = new OrderServiceImpl();
