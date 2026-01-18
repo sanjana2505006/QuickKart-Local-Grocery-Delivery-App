@@ -12,7 +12,6 @@ export default function Login({ onCreateAccount }) {
     const [alertType, setAlertType] = useState("");
     const [loading, setLoading] = useState(false);
     const [savedUser, setSavedUser] = useState(null);
-    const [showSuccessUI, setShowSuccessUI] = useState(false);
 
     useEffect(() => {
         loadUserData();
@@ -97,46 +96,15 @@ export default function Login({ onCreateAccount }) {
         setLoading(false);
 
         console.log('Login successful with:', { name, email, phone });
-
-        // Show premium Success UI instead of alert
-        setShowSuccessUI(true);
+        showAlert("Account created successfully!", "success");
 
         // Navigate to MainPage after successful account creation
         setTimeout(() => {
-            setShowSuccessUI(false);
+            setAlertVisible(false);
             if (onCreateAccount) {
                 onCreateAccount();
             }
-        }, 2500);
-    };
-
-    const renderSuccessUI = () => {
-        if (!showSuccessUI) return null;
-
-        return (
-            <Modal transparent visible={showSuccessUI} animationType="fade">
-                <View style={styles.successOverlay}>
-                    {/* Reusing decorative circles for consistency */}
-                    <View style={styles.backgroundCircle1} />
-                    <View style={styles.backgroundCircle2} />
-
-                    <View style={styles.successCard}>
-                        <View style={styles.successIconWrapper}>
-                            <Ionicons name="checkmark-done" size={60} color="#fff" />
-                        </View>
-                        <Text style={styles.successTitle}>Account Ready!</Text>
-                        <Text style={styles.successSubtitle}>Welcome <Text style={{ fontWeight: '700', color: '#1a1a1a' }}>{name}</Text>, your journey with QuickKart begins now.</Text>
-
-                        <View style={styles.successDivider} />
-
-                        <View style={styles.loaderContainer}>
-                            <ActivityIndicator size="small" color="#4CAF50" />
-                            <Text style={styles.redirectText}>Taking you to the store...</Text>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
-        );
+        }, 1500);
     };
 
     return (
@@ -259,7 +227,6 @@ export default function Login({ onCreateAccount }) {
                     </View>
                 </View>
             </Modal>
-            {renderSuccessUI()}
         </View>
     );
 }
@@ -479,74 +446,5 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '700',
         textAlign: 'center',
-    },
-    // Refined Success UI Styles
-    successOverlay: {
-        flex: 1,
-        backgroundColor: '#f8f9fa', // Reverting to page background color
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 20,
-    },
-    successCard: {
-        backgroundColor: '#fff',
-        borderRadius: 30,
-        padding: 40,
-        width: '100%',
-        alignItems: 'center',
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 10,
-        },
-        shadowOpacity: 0.1,
-        shadowRadius: 20,
-        elevation: 10,
-    },
-    successIconWrapper: {
-        width: 100,
-        height: 100,
-        backgroundColor: '#4CAF50',
-        borderRadius: 50,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 25,
-        shadowColor: "#4CAF50",
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.3,
-        shadowRadius: 12,
-        elevation: 8,
-    },
-    successTitle: {
-        fontSize: 28,
-        fontWeight: '900',
-        color: '#1a1a1a',
-        textAlign: 'center',
-        marginBottom: 12,
-        letterSpacing: -0.5,
-    },
-    successSubtitle: {
-        fontSize: 16,
-        color: '#666',
-        textAlign: 'center',
-        marginBottom: 30,
-        lineHeight: 24,
-    },
-    successDivider: {
-        width: '100%',
-        height: 1,
-        backgroundColor: '#f0f0f0',
-        marginBottom: 25,
-    },
-    loaderContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 10,
-    },
-    redirectText: {
-        color: '#4CAF50',
-        marginLeft: 12,
-        fontWeight: '700',
-        fontSize: 14,
     },
 });
