@@ -2,41 +2,41 @@ export const CATEGORIES = [
     {
         name: "All",
         icon: "grid-outline",
-        color: "#F5F6F7",
+        color: "#F2F3F4",
     },
     {
         name: "Fruits",
         icon: "nutrition-outline",
-        color: "#FFEBEE",
+        color: "#FDEDEC",
     },
     {
         name: "Vegetables",
         icon: "leaf-outline",
-        color: "#E8F5E9",
+        color: "#E8F8F5",
     },
     {
         name: "Dairy",
         icon: "water-outline",
-        color: "#E3F2FD",
+        color: "#EBF5FB",
     },
     {
         name: "Bakery",
         icon: "fast-food-outline",
-        color: "#FFF9C4",
+        color: "#FEF9E7",
     },
     {
         name: "Snacks",
         icon: "cafe-outline",
-        color: "#F3E5F5",
+        color: "#F4ECF7",
     },
     {
         name: "Beverages",
         icon: "wine-outline",
-        color: "#E0F2F1",
+        color: "#EBEDEF",
     },
     {
         name: "Meat",
         icon: "restaurant-outline",
-        color: "#FFECB3",
+        color: "#FDEDEC",
     },
 ];

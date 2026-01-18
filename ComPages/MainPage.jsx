@@ -1,13 +1,11 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View, SectionList, TextInput, Image, TouchableOpacity, ScrollView, Animated, Dimensions, Platform, StatusBar, Modal } from "react-native";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { StyleSheet, Text, View, SectionList, TextInput, Image, TouchableOpacity, ScrollView, Animated, Dimensions } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import OrderHistory from '../components/OrderHistory';
 import Heart from './Heart';
 import Cart from './Cart';
-import Profile from './Profile';
 
 import { CATEGORIES } from "../data/categories";
 import { fruitsData } from "../data/fruits";
@@ -18,6 +16,7 @@ import { snacksData } from "../data/snacks";
 import { beveragesData } from "../data/beverages";
 import { meatData } from "../data/meat";
 
+// Construct GROCERY_DATA from imported files
 const GROCERY_DATA = [
     {
         title: "Popular",
@@ -48,7 +47,7 @@ const GROCERY_DATA = [
         data: vegetablesData,
     },
     {
-        title: "Dairy",
+        title: "Dairy", // Matches "Dairy" in categories.js (was "Dairy & Eggs")
         data: dairyData,
     },
     {
@@ -70,21 +69,17 @@ const GROCERY_DATA = [
 ];
 
 export default function MainPage() {
-    const insets = useSafeAreaInsets();
     const [searchText, setSearchText] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("All");
+    const [showOrderHistory, setShowOrderHistory] = useState(false);
     const [cartItemCount, setCartItemCount] = useState(0);
     const [activeTab, setActiveTab] = useState("Home");
     const [favorites, setFavorites] = useState([]);
     const [toastVisible, setToastVisible] = useState(false);
     const [toastMessage, setToastMessage] = useState("");
-    const [toastType, setToastType] = useState("success");
+    const [toastType, setToastType] = useState("success"); // success or error
     const fadeAnim = React.useRef(new Animated.Value(0)).current;
     const slideAnim = React.useRef(new Animated.Value(100)).current;
-
-    const [address, setAddress] = useState("123 Main St, Mumbai");
-    const [showAddressModal, setShowAddressModal] = useState(false);
-    const [tempAddress, setTempAddress] = useState("");
 
     const showToast = (message, type = "success") => {
         setToastMessage(message);
@@ -122,7 +117,6 @@ export default function MainPage() {
 
     // Subscribe to cart and favorites changes
     React.useEffect(() => {
-        loadAddress();
         const unsubscribeCart = CartService.subscribe((cart) => {
             setCartItemCount(CartService.getItemCount());
         });
@@ -135,46 +129,17 @@ export default function MainPage() {
         };
     }, []);
 
-    const loadAddress = async () => {
-        try {
-            const savedAddress = await AsyncStorage.getItem('userAddress');
-            if (savedAddress) {
-                setAddress(savedAddress);
-            }
-        } catch (error) {
-            console.log('Error loading address:', error);
-        }
-    };
-
-    const saveAddress = async () => {
-        if (!tempAddress.trim()) return;
-        try {
-            await AsyncStorage.setItem('userAddress', tempAddress);
-            setAddress(tempAddress);
-            setShowAddressModal(false);
-            showToast("Address updated successfully!");
-        } catch (error) {
-            console.log('Error saving address:', error);
-            showToast("Failed to save address", "error");
-        }
-    };
-
-    const handleOpenAddressModal = () => {
-        setTempAddress(address);
-        setShowAddressModal(true);
-    };
-
     const handleRepeatOrder = (items) => {
         CartService.addItems(items);
-        setActiveTab("Cart"); // Go to cart to see the added items
+        setShowOrderHistory(false); // Go back to main page to see the cart update
     };
 
-    if (activeTab === "Orders") {
+    if (showOrderHistory) {
         return (
             <OrderHistory
                 orderService={OrderService}
                 onRepeatOrder={handleRepeatOrder}
-                onBack={() => setActiveTab("Home")}
+                onBack={() => setShowOrderHistory(false)}
             />
         );
     }
@@ -200,14 +165,6 @@ export default function MainPage() {
                     setActiveTab("Home");
                     setShowOrderHistory(true);
                 }}
-            />
-        );
-    }
-
-    if (activeTab === "Profile") {
-        return (
-            <Profile
-                onBack={() => setActiveTab("Home")}
             />
         );
     }
@@ -278,7 +235,7 @@ export default function MainPage() {
             { name: 'Profile', icon: 'person', id: 'Profile' },
             { name: 'Home', icon: 'home', id: 'Home' },
             { name: 'Favorites', icon: 'heart', id: 'Favorites' },
-            { name: 'Orders', icon: 'receipt', id: 'Orders' },
+            { name: 'Menu', icon: 'menu', id: 'Menu' },
         ];
 
         return (
@@ -311,47 +268,6 @@ export default function MainPage() {
         );
     };
 
-    const renderAddressModal = () => (
-        <Modal
-            transparent
-            visible={showAddressModal}
-            animationType="fade"
-            onRequestClose={() => setShowAddressModal(false)}
-        >
-            <TouchableOpacity
-                style={styles.modalOverlay}
-                activeOpacity={1}
-                onPress={() => setShowAddressModal(false)}
-            >
-                <View style={styles.modalContent}>
-                    <View style={styles.modalHeader}>
-                        <Text style={styles.modalTitle}>Delivery Address</Text>
-                        <TouchableOpacity onPress={() => setShowAddressModal(false)} style={styles.closeButton}>
-                            <Ionicons name="close" size={24} color="#1A1A1A" />
-                        </TouchableOpacity>
-                    </View>
-
-                    <View style={styles.modalBody}>
-                        <Text style={styles.inputLabel}>Enter full address</Text>
-                        <TextInput
-                            style={styles.addressInput}
-                            placeholder="e.g. 123 Main St, Apartment 4B"
-                            value={tempAddress}
-                            onChangeText={setTempAddress}
-                            multiline
-                            numberOfLines={3}
-                            autoFocus
-                        />
-                    </View>
-
-                    <TouchableOpacity style={styles.saveButton} onPress={saveAddress}>
-                        <Text style={styles.saveButtonText}>Update Delivery Location</Text>
-                    </TouchableOpacity>
-                </View>
-            </TouchableOpacity>
-        </Modal>
-    );
-
     const ListHeader = () => (
         <View>
             <Text style={styles.sectionTitle}>Categories</Text>
@@ -370,9 +286,7 @@ export default function MainPage() {
                         ]}
                         onPress={() => setSelectedCategory(cat.name)}
                     >
-                        <View style={styles.categoryIconWrapper}>
-                            <Ionicons name={cat.icon} size={32} color="#1A1A1A" />
-                        </View>
+                        <Ionicons name={cat.icon} size={24} color="#1A1A1A" style={{ marginBottom: 8 }} />
                         <Text style={styles.categoryName}>{cat.name}</Text>
                     </TouchableOpacity>
                 ))}
@@ -381,79 +295,43 @@ export default function MainPage() {
     );
 
     return (
-        <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
+        <SafeAreaView style={styles.container}>
             {/* Top Header */}
-            <View style={[styles.topHeader, { paddingTop: Math.max(insets.top, 20) }]}>
-                <View style={styles.headerLeft}>
-                    <Text style={styles.deliverToLabel}>Deliver to</Text>
-                    <TouchableOpacity style={styles.locationContainer} onPress={handleOpenAddressModal}>
-                        <Text style={styles.locationValue} numberOfLines={1}>{address}</Text>
-                        <Ionicons name="chevron-down" size={14} color="#4CAF50" />
-                    </TouchableOpacity>
-                </View>
+            <View style={styles.topHeader}>
+                <Text style={styles.topHeaderTitle}>Grocery Shopping</Text>
                 <TouchableOpacity
-                    style={styles.profileButton}
-                    onPress={() => setActiveTab("Profile")}
+                    style={styles.ordersButton}
+                    onPress={() => setShowOrderHistory(true)}
                 >
-                    <Ionicons name="person-circle-outline" size={32} color="#1A1A1A" />
+                    <Ionicons name="receipt-outline" size={24} color="#2c3e50" />
                 </TouchableOpacity>
             </View>
 
-            {renderAddressModal()}
-
+            {/* Search Bar */}
+            <View style={styles.searchContainer}>
+                <TextInput
+                    style={styles.searchInput}
+                    placeholder="Search items..."
+                    value={searchText}
+                    onChangeText={setSearchText}
+                />
+            </View>
 
             {/* Content */}
             <ScrollView contentContainerStyle={styles.listContent} showsVerticalScrollIndicator={false}>
                 {selectedCategory === "All" ? (
                     <>
-                        {/* Banner Carousel */}
-                        <ScrollView
-                            horizontal
-                            pagingEnabled
-                            showsHorizontalScrollIndicator={false}
-                            style={styles.bannerScroll}
-                        >
-                            <View style={styles.bannerContainer}>
-                                <Image
-                                    source={{ uri: "https://images.unsplash.com/photo-1612927601601-6638404737ce?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Zm9vZCUyMHBob3RvfGVufDB8fDB8fHww" }}
-                                    style={styles.bannerImage}
-                                />
-                                <View style={styles.bannerOverlay}>
-                                    <Text style={styles.bannerText}>Fresh Groceries</Text>
-                                    <Text style={styles.bannerSubtext}>Delivered in 10 mins</Text>
-                                </View>
+                        {/* Banner */}
+                        <View style={styles.bannerContainer}>
+                            <Image
+                                source={{ uri: "https://img.freepik.com/free-photo/shopping-basket-with-grocery-products_23-2148102377.jpg" }}
+                                style={styles.bannerImage}
+                            />
+                            <View style={styles.bannerOverlay}>
+                                <Text style={styles.bannerText}>Fresh Groceries</Text>
+                                <Text style={styles.bannerSubtext}>Delivered in 10 mins</Text>
                             </View>
-                            <View style={styles.bannerContainer}>
-                                <Image
-                                    source={{ uri: "https://plus.unsplash.com/premium_photo-1673590981770-307f61735af8?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NDF8fGZvb2QlMjBwaG90b3xlbnwwfHwwfHx8MA%3D%3D" }}
-                                    style={styles.bannerImage}
-                                />
-                                <View style={styles.bannerOverlay}>
-                                    <Text style={styles.bannerText}>Quality Food</Text>
-                                    <Text style={styles.bannerSubtext}>Best prices guaranteed</Text>
-                                </View>
-                            </View>
-                            <View style={styles.bannerContainer}>
-                                <Image
-                                    source={{ uri: "https://plus.unsplash.com/premium_photo-1671379041175-782d15092945?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8ZnJ1aXRzfGVufDB8fDB8fHww" }}
-                                    style={styles.bannerImage}
-                                />
-                                <View style={styles.bannerOverlay}>
-                                    <Text style={styles.bannerText}>Fresh Fruits</Text>
-                                    <Text style={styles.bannerSubtext}>Organic & healthy</Text>
-                                </View>
-                            </View>
-                            <View style={styles.bannerContainer}>
-                                <Image
-                                    source={{ uri: "https://plus.unsplash.com/premium_photo-1664640733890-17acaf0529a5?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NDV8fHZlZ2V0YWJsZXN8ZW58MHx8MHx8fDA%3D" }}
-                                    style={styles.bannerImage}
-                                />
-                                <View style={styles.bannerOverlay}>
-                                    <Text style={styles.bannerText}>Farm Fresh Vegetables</Text>
-                                    <Text style={styles.bannerSubtext}>Straight from the farm</Text>
-                                </View>
-                            </View>
-                        </ScrollView>
+                        </View>
 
                         <View style={styles.sectionContainer}>
                             <Text style={styles.sectionTitle}>Grocery & Kitchen</Text>
@@ -551,58 +429,44 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
-        paddingHorizontal: 20,
-        paddingBottom: 15,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
         backgroundColor: "#fff",
         borderBottomWidth: 1,
-        borderBottomColor: "#F0F0F0",
+        borderBottomColor: "#f0f0f0",
     },
-    headerLeft: {
-        flex: 1,
-    },
-    deliverToLabel: {
-        fontSize: 12,
-        fontWeight: "600",
-        color: "#888",
-        textTransform: "uppercase",
-        letterSpacing: 0.5,
-    },
-    locationContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        marginTop: 2,
-    },
-    locationValue: {
-        fontSize: 16,
-        fontWeight: "700",
+    topHeaderTitle: {
+        fontSize: 24,
+        fontWeight: "800",
         color: "#1A1A1A",
-        marginRight: 4,
+        letterSpacing: -0.5,
     },
-    profileButton: {
-        padding: 4,
+    ordersButton: {
+        padding: 10,
+        borderRadius: 12,
+        backgroundColor: "#F5F5F5",
     },
     searchContainer: {
         paddingHorizontal: 20,
         paddingBottom: 15,
         backgroundColor: "#fff",
-        borderBottomWidth: 1,
-        borderBottomColor: "#F0F0F0",
-    },
-    searchInner: {
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: "#F5F6F8",
-        borderRadius: 12,
-        paddingHorizontal: 15,
-        height: 48,
-        borderWidth: 1,
-        borderColor: "#EBEBEB",
+        borderBottomLeftRadius: 24,
+        borderBottomRightRadius: 24,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        elevation: 5,
+        zIndex: 10,
     },
     searchInput: {
-        flex: 1,
-        fontSize: 15,
+        height: 50,
+        backgroundColor: "#F3F4F6",
+        borderRadius: 16,
+        paddingHorizontal: 20,
+        fontSize: 16,
         color: "#1A1A1A",
-        paddingHorizontal: 10,
+        borderWidth: 0,
     },
     listContent: {
         paddingHorizontal: 20,
@@ -621,27 +485,22 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     categoryCard: {
-        width: 105,
-        height: 120,
-        marginRight: 16,
-        borderRadius: 24,
+        width: 80,
+        height: 90,
+        marginRight: 12,
+        borderRadius: 16,
         alignItems: "center",
         justifyContent: "center",
-        padding: 12,
+        padding: 8,
         shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.08,
-        shadowRadius: 10,
-        elevation: 3,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
+        elevation: 2,
     },
     selectedCategoryCard: {
         borderWidth: 2,
         borderColor: "#4CAF50",
-        shadowOpacity: 0.15,
-        elevation: 6,
-    },
-    categoryIconWrapper: {
-        marginBottom: 10,
     },
     categoryImage: {
         width: 40,
@@ -649,9 +508,9 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     categoryName: {
-        fontSize: 13,
-        fontWeight: "700",
-        color: "#1A1A1A",
+        fontSize: 11,
+        fontWeight: "600",
+        color: "#333",
         textAlign: "center",
     },
     gridContainer: {
@@ -826,14 +685,8 @@ const styles = StyleSheet.create({
         color: "#fff",
         fontWeight: "600",
     },
-    bannerScroll: {
-        marginVertical: 20,
-        marginHorizontal: -20,
-        paddingLeft: 20,
-    },
     bannerContainer: {
-        width: 350,
-        marginHorizontal: 10,
+        marginVertical: 20,
         borderRadius: 20,
         overflow: 'hidden',
         height: 180,
@@ -849,28 +702,19 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: 20,
         left: 20,
-        right: 20,
-        backgroundColor: 'rgba(0, 0, 0, 0.6)',
-        backdropFilter: 'blur(10px)',
-        paddingHorizontal: 20,
-        paddingVertical: 15,
-        borderRadius: 16,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-        elevation: 5,
+        backgroundColor: 'rgba(255,255,255,0.9)',
+        paddingHorizontal: 15,
+        paddingVertical: 10,
+        borderRadius: 12,
     },
     bannerText: {
-        fontSize: 22,
+        fontSize: 18,
         fontWeight: '800',
-        color: '#fff',
-        marginBottom: 4,
-        letterSpacing: 0.5,
+        color: '#1A1A1A',
     },
     bannerSubtext: {
-        fontSize: 14,
-        color: '#E8F5E9',
+        fontSize: 12,
+        color: '#4CAF50',
         fontWeight: '600',
     },
     toastContainer: {
@@ -919,69 +763,6 @@ const styles = StyleSheet.create({
         color: '#666',
         fontSize: 13,
         fontWeight: '500',
-    },
-    // Address Modal Styles
-    modalOverlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        justifyContent: 'center',
-        padding: 20,
-    },
-    modalContent: {
-        backgroundColor: '#fff',
-        borderRadius: 24,
-        padding: 24,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.25,
-        shadowRadius: 20,
-        elevation: 10,
-    },
-    modalHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 20,
-    },
-    modalTitle: {
-        fontSize: 20,
-        fontWeight: '800',
-        color: '#1A1A1A',
-    },
-    closeButton: {
-        padding: 4,
-    },
-    modalBody: {
-        marginBottom: 24,
-    },
-    inputLabel: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: '#666',
-        marginBottom: 10,
-    },
-    addressInput: {
-        backgroundColor: '#F5F6F8',
-        borderRadius: 12,
-        padding: 15,
-        fontSize: 15,
-        color: '#1A1A1A',
-        minHeight: 80,
-        textAlignVertical: 'top',
-        borderWidth: 1,
-        borderColor: '#EBEBEB',
-    },
-    saveButton: {
-        backgroundColor: '#4CAF50',
-        borderRadius: 12,
-        height: 54,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    saveButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: '700',
     },
 });
 
@@ -1043,7 +824,7 @@ class CartServiceImpl {
     // Get cart total
     getTotal() {
         return this.cart.reduce((total, item) => {
-            const price = parseFloat(item.price.replace(/[^\d.]/g, ''));
+            const price = parseFloat(item.price.replace(/[^0-9.]/g, ''));
             return total + (price * item.quantity);
         }, 0);
     }
